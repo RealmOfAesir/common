@@ -5,6 +5,7 @@ extern crate serde;
 extern crate serde_json;
 
 use serde::{Deserialize, Serialize};
+use serde_json::Error;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum Type {
@@ -31,10 +32,10 @@ pub struct LoginV1 {
     pub password: String
 }
 
-pub fn deserialize_message<'a, T: Deserialize>(msg: &'a str) -> T {
-    serde_json::from_str(msg).unwrap()
+pub fn deserialize_message<'a, T: Deserialize>(msg: &'a str) -> Result<T, Error> {
+    serde_json::from_str(msg)
 }
 
-pub fn serialize_message<'a, T: Serialize>(data: T) -> String {
-    serde_json::to_string(&data).unwrap()
+pub fn serialize_message<'a, T: Serialize>(data: T) -> Result<String, Error> {
+    serde_json::to_string(&data)
 }

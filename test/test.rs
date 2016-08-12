@@ -14,7 +14,13 @@ fn main() {
 
 #[test]
 fn serialization_test() {
-    let msg: Message = Message { msg_type: common::Type::Login, version: 0, content: String::from("test") };
-    let msg_new: Message = deserialize_message(&serialize_message(&msg));
+    let msg: Message = Message { msg_type: common::Type::Login, version: 0, content: "test".to_string() };
+    let msg_new: Message = deserialize_message(&serialize_message(&msg).unwrap()).unwrap();
     assert_eq!(msg_new, msg);
+}
+
+#[test]
+#[should_panic]
+fn error_test() {
+    let msg_new: Message = deserialize_message("asdkjhaskjd").unwrap();
 }
