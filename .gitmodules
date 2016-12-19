@@ -1,0 +1,18 @@
+[submodule "external/librdkafka"]
+	path = external/librdkafka
+	url = https://github.com/edenhill/librdkafka.git
+[submodule "external/di"]
+	path = external/di
+	url = https://github.com/boost-experimental/di.git
+[submodule "external/json"]
+	path = external/json
+	url = https://github.com/nlohmann/json.git
+[submodule "external/easyloggingpp"]
+	path = external/easyloggingpp
+	url = https://github.com/Oipo/easyloggingpp.git
+[submodule "external/cereal"]
+	path = external/cereal
+	url = https://github.com/USCiLab/cereal.git
+[submodule "external/doctest"]
+	path = external/doctest
+	url = https://github.com/onqtam/doctest.git
