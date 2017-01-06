@@ -18,8 +18,11 @@
 
 #define DOCTEST_CONFIG_NO_TRY_CATCH_IN_ASSERTS
 #define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
+#define DOCTEST_CONFIG_USE_IOSFWD
 #include <doctest.h>
 #include <iostream>
+#include <sstream>
+#include <cereal/include/cereal/details/helpers.hpp>
 #include "messages.h"
 #include "exceptions.h"
 
@@ -43,6 +46,11 @@ TEST_CASE("serialize/deserialize login_message happy flow") {
 TEST_CASE("serialize/deserialize login_message errors") {
     CHECK_THROWS_AS(message::deserialize(""), serialization_exception&);
     CHECK_THROWS_AS(message::deserialize("garbage"), serialization_exception&);
+
+    stringstream ss;
+    ss << (char)/*LOGIN_MESSAGE_TYPE*/0;
+    ss << "garbage";
+    CHECK_THROWS_AS(message::deserialize(ss.str()), cereal::Exception&);
 }
 
 TEST_SUITE_END();

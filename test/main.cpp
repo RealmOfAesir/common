@@ -19,6 +19,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #define DOCTEST_CONFIG_NO_TRY_CATCH_IN_ASSERTS
 #define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
+#define DOCTEST_CONFIG_USE_IOSFWD
 #include "doctest.h"
 #include <easylogging++.h>
 
