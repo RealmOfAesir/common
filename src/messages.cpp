@@ -27,16 +27,17 @@
 #define LOGIN_MESSAGE_TYPE 0
 
 using namespace std;
+using namespace roa;
 
 std::unique_ptr<message> message::deserialize(std::string buffer) {
     if(buffer.empty() || buffer.length() < 2) {
         LOG(WARNING) << "[message] deserialize encountered empty buffer";
-        throw new serialization_exception();
+        throw serialization_exception();
     }
 
     if(buffer[0] > 2) {
         LOG(WARNING) << "[message] deserialize encountered unknown message type: " << buffer[0];
-        throw new serialization_exception();
+        throw serialization_exception();
     }
 
     if(buffer[0] == LOGIN_MESSAGE_TYPE) {
@@ -55,7 +56,7 @@ std::unique_ptr<message> message::deserialize(std::string buffer) {
 
     LOG(WARNING) << "[message] deserialize encountered unknown message type: " << buffer[0];
 
-    throw new serialization_exception();
+    throw serialization_exception();
 }
 
 login_message::login_message(std::string username, std::string password)

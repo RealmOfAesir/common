@@ -17,17 +17,32 @@
 */
 
 #define DOCTEST_CONFIG_NO_TRY_CATCH_IN_ASSERTS
+#define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
 #include <doctest.h>
 #include <iostream>
 #include "messages.h"
+#include "exceptions.h"
 
 using namespace std;
-TEST_CASE("serialize/deserialize login_message") {
+using namespace roa;
+
+TEST_SUITE("message serialization/deserialization");
+
+TEST_CASE("serialize/deserialize login_message happy flow") {
     login_message message("user", "pass");
     auto serialized_message = message.serialize();
+    FAST_REQUIRE_GT(serialized_message.length(), 0);
     auto deserialized_message = message::deserialize(serialized_message);
+    FAST_REQUIRE_NE(deserialized_message, nullptr);
     auto new_message = dynamic_cast<login_message*>(deserialized_message.get());
-    CHECK(new_message != nullptr);
-    CHECK(new_message->username == "user");
-    CHECK(new_message->password == "pass");
+    FAST_REQUIRE_NE(new_message, nullptr);
+    FAST_CHECK_EQ(new_message->username, "user");
+    FAST_CHECK_EQ(new_message->password, "pass");
 }
+
+TEST_CASE("serialize/deserialize login_message errors") {
+    CHECK_THROWS_AS(message::deserialize(""), serialization_exception&);
+    CHECK_THROWS_AS(message::deserialize("garbage"), serialization_exception&);
+}
+
+TEST_SUITE_END();

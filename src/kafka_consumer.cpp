@@ -28,6 +28,8 @@ using namespace std;
 using namespace experimental;
 #endif
 
+using namespace roa;
+
 kafka_consumer::kafka_consumer(string broker_list, string group_id, vector<string> topics) {
         string errstr;
         RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
@@ -45,7 +47,7 @@ kafka_consumer::kafka_consumer(string broker_list, string group_id, vector<strin
             RdKafka::KafkaConsumer *consumer = RdKafka::KafkaConsumer::create(conf, errstr);
             if (!consumer) {
                 LOG(ERROR) << "[kafka_consumer] Failed to create consumer: " << errstr;
-                throw new kafka_exception();
+                throw kafka_exception();
             }
 
             _consumer = consumer;
@@ -57,7 +59,7 @@ kafka_consumer::kafka_consumer(string broker_list, string group_id, vector<strin
         if (err) {
             LOG(ERROR) << "[kafka_consumer] Failed to subscribe to topics: " << RdKafka::err2str(err);
             this->close();
-            throw new kafka_exception();
+            throw kafka_exception();
         }
     }
 
@@ -65,13 +67,19 @@ optional<unique_ptr<message>> kafka_consumer::try_get_message(uint16_t ms_to_wai
     if(unlikely(!_consumer)) {
         return {};
     }
+
     RdKafka::Message *msg = _consumer.value()->consume(ms_to_wait);
 
     if(!msg) {
         return {};
     }
 
-    return experimental::optional<unique_ptr<message>>();
+    if(msg->err() != RdKafka::ERR_NO_ERROR) {
+        LOG(WARNING) << "[kafka_consumer] Message error: " << msg->errstr();
+        return {};
+    }
+
+    return optional<unique_ptr<message>>();
 }
 
 void kafka_consumer::close() {

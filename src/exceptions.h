@@ -22,20 +22,25 @@
 #include <stdexcept>
 #include <string>
 
-class configuration_exception : public std::runtime_error {
-public:
-    configuration_exception(std::string error) : runtime_error(error) {}
-    configuration_exception() : runtime_error("") {}
-};
+namespace roa {
+    class configuration_exception : public std::runtime_error {
+    public:
+        configuration_exception(std::string error) : runtime_error(error) {}
 
-class kafka_exception : public std::runtime_error {
-public:
-    kafka_exception(std::string error) : runtime_error(error) {}
-    kafka_exception() : runtime_error("") {}
-};
+        configuration_exception() : runtime_error("") {}
+    };
 
-class serialization_exception : public std::runtime_error {
-public:
-    serialization_exception(std::string error) : runtime_error(error) {}
-    serialization_exception() : runtime_error("") {}
-};
+    class kafka_exception : public std::runtime_error {
+    public:
+        kafka_exception(std::string error) : runtime_error(error) {}
+
+        kafka_exception() : runtime_error("") {}
+    };
+
+    class serialization_exception : public std::runtime_error {
+    public:
+        serialization_exception(std::string error) : runtime_error(error) {}
+
+        serialization_exception() : runtime_error("") {}
+    };
+}

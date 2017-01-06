@@ -26,24 +26,44 @@
 #include <memory>
 #include <rdkafkacpp.h>
 
-class kafka_consumer {
-public:
-    kafka_consumer(std::string broker_list, std::string group_id, std::vector<std::string> topics);
-    ~kafka_consumer();
+namespace roa {
+    class ikafka_consumer {
+    public:
+        virtual ~ikafka_consumer() = default;
 
-    void close();
-
-#ifdef EXPERIMENTAL_OPTIONAL
-    std::experimental::optional<std::unique_ptr<message>> try_get_message(uint16_t ms_to_wait = 0);
-#else
-    std::optional<std::unique_ptr<message>> try_get_message(uint16_t ms_to_wait = 0);
-#endif
-private:
-    bool _open;
+        virtual void close();
 
 #ifdef EXPERIMENTAL_OPTIONAL
-    std::experimental::optional<RdKafka::KafkaConsumer*> _consumer;
+
+        virtual std::experimental::optional<std::unique_ptr<message>> try_get_message(uint16_t ms_to_wait = 0);
+
 #else
-    std::optional<RdKafka::KafkaConsumer*> _consumer;
+        virtual std::optional<std::unique_ptr<message>> try_get_message(uint16_t ms_to_wait = 0);
 #endif
-};
+    };
+
+    class kafka_consumer : public ikafka_consumer {
+    public:
+        kafka_consumer(std::string broker_list, std::string group_id, std::vector<std::string> topics);
+
+        ~kafka_consumer();
+
+        void close() override;
+
+#ifdef EXPERIMENTAL_OPTIONAL
+
+        std::experimental::optional<std::unique_ptr<message>> try_get_message(uint16_t ms_to_wait = 0);
+
+#else
+        std::optional<std::unique_ptr<message>> try_get_message(uint16_t ms_to_wait = 0);
+#endif
+    private:
+        bool _open;
+
+#ifdef EXPERIMENTAL_OPTIONAL
+        std::experimental::optional<RdKafka::KafkaConsumer *> _consumer;
+#else
+        std::optional<RdKafka::KafkaConsumer*> _consumer;
+#endif
+    };
+}

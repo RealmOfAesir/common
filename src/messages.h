@@ -21,21 +21,25 @@
 #include <string>
 #include <memory>
 
-class message {
-public:
-    virtual ~message() {};
+namespace roa {
+    class message {
+    public:
+        virtual ~message() {};
 
-    virtual std::string serialize() = 0;
-    static std::unique_ptr<message> deserialize(std::string buffer);
-};
+        virtual std::string serialize() = 0;
 
-class login_message: public message {
-public:
-    login_message(std::string username, std::string password);
-    virtual ~login_message();
+        static std::unique_ptr<message> deserialize(std::string buffer);
+    };
 
-    virtual std::string serialize();
+    class login_message : public message {
+    public:
+        login_message(std::string username, std::string password);
 
-    std::string username;
-    std::string password;
-};
+        virtual ~login_message();
+
+        virtual std::string serialize();
+
+        std::string username;
+        std::string password;
+    };
+}
