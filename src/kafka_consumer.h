@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include "messages.h"
-#include "custom_optional.h"
+#include "messages/message.h"
 
 #include <string>
 #include <vector>
@@ -31,39 +30,24 @@ namespace roa {
     public:
         virtual ~ikafka_consumer() = default;
 
-        virtual void close();
+        virtual void close() = 0;
 
-#ifdef EXPERIMENTAL_OPTIONAL
-
-        virtual std::experimental::optional<std::unique_ptr<message>> try_get_message(uint16_t ms_to_wait = 0);
-
-#else
-        virtual std::optional<std::unique_ptr<message>> try_get_message(uint16_t ms_to_wait = 0);
-#endif
+        virtual std::unique_ptr<message> try_get_message(uint16_t ms_to_wait = 0) = 0;
+        virtual bool is_queue_empty() = 0;
     };
 
     class kafka_consumer : public ikafka_consumer {
     public:
-        kafka_consumer(std::string broker_list, std::string group_id, std::vector<std::string> topics);
+        kafka_consumer(std::string broker_list, std::string group_id, std::vector<std::string> topics, bool debug = false);
 
         ~kafka_consumer();
 
         void close() override;
 
-#ifdef EXPERIMENTAL_OPTIONAL
-
-        std::experimental::optional<std::unique_ptr<message>> try_get_message(uint16_t ms_to_wait = 0);
-
-#else
-        std::optional<std::unique_ptr<message>> try_get_message(uint16_t ms_to_wait = 0);
-#endif
+        std::unique_ptr<message> try_get_message(uint16_t ms_to_wait = 0) override;
+        bool is_queue_empty() override;
     private:
-        bool _open;
-
-#ifdef EXPERIMENTAL_OPTIONAL
-        std::experimental::optional<RdKafka::KafkaConsumer *> _consumer;
-#else
-        std::optional<RdKafka::KafkaConsumer*> _consumer;
-#endif
+        bool _closing;
+        std::unique_ptr<RdKafka::KafkaConsumer> _consumer;
     };
 }

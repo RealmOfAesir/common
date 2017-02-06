@@ -21,25 +21,16 @@
 #include <string>
 #include <memory>
 
+#define LOGIN_MESSAGE_TYPE 0
+#define LOGIN_RESPONSE_MESSAGE_TYPE 1
+
 namespace roa {
     class message {
     public:
-        virtual ~message() {};
+        virtual ~message() noexcept {};
 
         virtual std::string serialize() = 0;
 
         static std::unique_ptr<message> deserialize(std::string buffer);
-    };
-
-    class login_message : public message {
-    public:
-        login_message(std::string username, std::string password);
-
-        virtual ~login_message();
-
-        virtual std::string serialize();
-
-        std::string username;
-        std::string password;
     };
 }

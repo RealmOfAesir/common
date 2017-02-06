@@ -18,29 +18,21 @@
 
 #pragma once
 
-#include <exception>
-#include <stdexcept>
 #include <string>
+#include <memory>
+
+#include "message.h"
 
 namespace roa {
-    class configuration_exception : public std::runtime_error {
+    class login_response_message : public message {
     public:
-        explicit configuration_exception(std::string error) : runtime_error(error) {}
+        login_response_message(int error, std::string error_str) noexcept;
 
-        configuration_exception() : runtime_error("") {}
-    };
+        ~login_response_message() override;
 
-    class kafka_exception : public std::runtime_error {
-    public:
-        explicit kafka_exception(std::string error) : runtime_error(error) {}
+        std::string serialize() override;
 
-        kafka_exception() : runtime_error("") {}
-    };
-
-    class serialization_exception : public std::runtime_error {
-    public:
-        explicit serialization_exception(std::string error) : runtime_error(error) {}
-
-        serialization_exception() : runtime_error("") {}
+        int error;
+        std::string error_str;
     };
 }

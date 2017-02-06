@@ -16,31 +16,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "login_response_message.h"
 
-#include <exception>
-#include <stdexcept>
-#include <string>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/string.hpp>
+#include <sstream>
+#include <easylogging++.h>
 
-namespace roa {
-    class configuration_exception : public std::runtime_error {
-    public:
-        explicit configuration_exception(std::string error) : runtime_error(error) {}
+using namespace std;
+using namespace roa;
 
-        configuration_exception() : runtime_error("") {}
-    };
+login_response_message::login_response_message(int error, std::string error_str) noexcept
+        : error(error), error_str(error_str) {}
 
-    class kafka_exception : public std::runtime_error {
-    public:
-        explicit kafka_exception(std::string error) : runtime_error(error) {}
+login_response_message::~login_response_message() {
 
-        kafka_exception() : runtime_error("") {}
-    };
+}
 
-    class serialization_exception : public std::runtime_error {
-    public:
-        explicit serialization_exception(std::string error) : runtime_error(error) {}
+std::string login_response_message::serialize() {
+    stringstream ss;
+    ss << (char)LOGIN_RESPONSE_MESSAGE_TYPE;
+    {
+        cereal::BinaryOutputArchive archive(ss);
 
-        serialization_exception() : runtime_error("") {}
-    };
+        archive(this->error, this->error_str);
+    }
+
+    return ss.str();
 }

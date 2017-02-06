@@ -9,7 +9,7 @@
 	url = https://github.com/nlohmann/json.git
 [submodule "external/easyloggingpp"]
 	path = external/easyloggingpp
-	url = https://github.com/Oipo/easyloggingpp.git
+	url = https://github.com/muflihun/easyloggingpp.git
 [submodule "external/cereal"]
 	path = external/cereal
 	url = https://github.com/USCiLab/cereal.git

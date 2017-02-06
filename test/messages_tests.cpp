@@ -23,7 +23,9 @@
 #include <iostream>
 #include <sstream>
 #include <cereal/include/cereal/details/helpers.hpp>
-#include "messages.h"
+#include "messages/message.h"
+#include "messages/login_message.h"
+#include "messages/login_response_message.h"
 #include "exceptions.h"
 
 using namespace std;
@@ -43,12 +45,33 @@ TEST_CASE("serialize/deserialize login_message happy flow") {
     FAST_CHECK_EQ(new_message->password, "pass");
 }
 
-TEST_CASE("serialize/deserialize login_message errors") {
+TEST_CASE("deserialize garbage") {
     CHECK_THROWS_AS(message::deserialize(""), serialization_exception&);
     CHECK_THROWS_AS(message::deserialize("garbage"), serialization_exception&);
+}
 
+TEST_CASE("serialize/deserialize login_message errors") {
     stringstream ss;
-    ss << (char)/*LOGIN_MESSAGE_TYPE*/0;
+    ss << (char)LOGIN_MESSAGE_TYPE;
+    ss << "garbage";
+    CHECK_THROWS_AS(message::deserialize(ss.str()), cereal::Exception&);
+}
+
+TEST_CASE("serialize/deserialize login_response_message happy flow") {
+    login_response_message message(1, "test");
+    auto serialized_message = message.serialize();
+    FAST_REQUIRE_GT(serialized_message.length(), 0);
+    auto deserialized_message = message::deserialize(serialized_message);
+    FAST_REQUIRE_NE(deserialized_message, nullptr);
+    auto new_message = dynamic_cast<login_response_message*>(deserialized_message.get());
+    FAST_REQUIRE_NE(new_message, nullptr);
+    FAST_CHECK_EQ(new_message->error, 1);
+    FAST_CHECK_EQ(new_message->error_str, "test");
+}
+
+TEST_CASE("serialize/deserialize login_response_message errors") {
+    stringstream ss;
+    ss << (char)LOGIN_RESPONSE_MESSAGE_TYPE;
     ss << "garbage";
     CHECK_THROWS_AS(message::deserialize(ss.str()), cereal::Exception&);
 }

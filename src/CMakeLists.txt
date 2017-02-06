@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(RealmOfAesirCommon CXX)
 
-file(GLOB PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/*.cpp)
+file(GLOB PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/messages/*.cpp)
 add_library(RealmOfAesirCommon ${PROJECT_SOURCES})
 
 include_directories("${PROJECT_SOURCE_DIR}")

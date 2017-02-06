@@ -16,50 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "messages.h"
-#include "exceptions.h"
+#include "login_message.h"
 
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/string.hpp>
 #include <sstream>
 #include <easylogging++.h>
 
-#define LOGIN_MESSAGE_TYPE 0
-
 using namespace std;
 using namespace roa;
 
-std::unique_ptr<message> message::deserialize(std::string buffer) {
-    if(buffer.empty() || buffer.length() < 2) {
-        LOG(WARNING) << "[message] deserialize encountered empty buffer";
-        throw serialization_exception();
-    }
-
-    if(buffer[0] > 2) {
-        LOG(WARNING) << "[message] deserialize encountered unknown message type: " << buffer[0];
-        throw serialization_exception();
-    }
-
-    if(buffer[0] == LOGIN_MESSAGE_TYPE) {
-        LOG(INFO) << "[message] deserialize encountered LOGIN_MESSAGE_TYPE";
-        stringstream ss;
-        ss << buffer.substr(1);
-        ss.flush();
-        {
-            std::string username;
-            std::string password;
-            cereal::BinaryInputArchive archive(ss);
-            archive(username, password);
-            return make_unique<login_message>(username, password);
-        }
-    }
-
-    LOG(WARNING) << "[message] deserialize encountered unknown message type: " << buffer[0];
-
-    throw serialization_exception();
-}
-
-login_message::login_message(std::string username, std::string password)
+login_message::login_message(std::string username, std::string password) noexcept
         : username(username), password(password) {}
 
 login_message::~login_message() {
