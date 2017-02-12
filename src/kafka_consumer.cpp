@@ -64,7 +64,8 @@ public:
 
 ExampleRebalanceCb ex_rebalance_cb;*/
 
-kafka_consumer::kafka_consumer(string broker_list, string group_id, vector<string> topics, bool debug)
+template <bool UseJson>
+kafka_consumer<UseJson>::kafka_consumer(string broker_list, string group_id, vector<string> topics, bool debug)
     : _closing(), _consumer() {
     string errstr;
     RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
@@ -138,11 +139,13 @@ kafka_consumer::kafka_consumer(string broker_list, string group_id, vector<strin
     LOG(INFO) << "[kafka_consumer] Created consumer " << _consumer->name();
 }
 
-kafka_consumer::~kafka_consumer() {
+template <bool UseJson>
+kafka_consumer<UseJson>::~kafka_consumer() {
     close();
 }
 
-unique_ptr<message> kafka_consumer::try_get_message(uint16_t ms_to_wait) {
+template <bool UseJson>
+unique_ptr<message<UseJson>> kafka_consumer<UseJson>::try_get_message(uint16_t ms_to_wait) {
     if(unlikely(!_consumer)) {
         LOG(ERROR) << "[kafka_consumer] No consumer";
         throw kafka_exception("[kafka_consumer] No consumer");
@@ -184,14 +187,16 @@ unique_ptr<message> kafka_consumer::try_get_message(uint16_t ms_to_wait) {
         return {};
     }
 
-    return move(message::deserialize(payload_string));
+    return move(message<UseJson>::deserialize(payload_string));
 }
 
-bool kafka_consumer::is_queue_empty() {
+template <bool UseJson>
+bool kafka_consumer<UseJson>::is_queue_empty() {
     return _consumer && _consumer->outq_len() == 0;
 }
 
-void kafka_consumer::close() {
+template <bool UseJson>
+void kafka_consumer<UseJson>::close() {
     if(unlikely(!_consumer)) {
         return;
     }

@@ -14,6 +14,6 @@ include_directories("${CMAKE_SOURCE_DIR}/external/cereal/include")
 include_directories("${CMAKE_SOURCE_DIR}/external/easyloggingpp/src")
 include_directories("${CMAKE_SOURCE_DIR}/external/json/src")
 include_directories("${CMAKE_SOURCE_DIR}/external/di/include")
-include_directories("${CMAKE_SOURCE_DIR}/external/doctest/doctest")
+include_directories("${CMAKE_SOURCE_DIR}/external/Catch/include")
 
 target_link_libraries(Test PUBLIC RealmOfAesirCommon)

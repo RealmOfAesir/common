@@ -19,27 +19,29 @@
 #include "login_message.h"
 
 #include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
 #include <cereal/types/string.hpp>
 #include <sstream>
-#include <easylogging++.h>
 
 using namespace std;
 using namespace roa;
 
-login_message::login_message(std::string username, std::string password) noexcept
+template <bool UseJson>
+login_message<UseJson>::login_message(std::string username, std::string password) noexcept
         : username(username), password(password) {}
 
-login_message::~login_message() {
+template <bool UseJson>
+login_message<UseJson>::~login_message() {
 
 }
 
-std::string login_message::serialize() {
+template <bool UseJson>
+std::string login_message<UseJson>::serialize() {
     stringstream ss;
-    ss << (char)LOGIN_MESSAGE_TYPE;
     {
-        cereal::BinaryOutputArchive archive(ss);
+        typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
-        archive(this->username, this->password);
+        archive((uint32_t)LOGIN_MESSAGE_TYPE, this->username, this->password);
     }
 
     return ss.str();

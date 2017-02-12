@@ -24,7 +24,10 @@
 #define LOGIN_MESSAGE_TYPE 0
 #define LOGIN_RESPONSE_MESSAGE_TYPE 1
 
+#define ADMIN_QUIT_MESSAGE_TYPE 10000
+
 namespace roa {
+    template <bool UseJson>
     class message {
     public:
         virtual ~message() noexcept {};
@@ -33,4 +36,7 @@ namespace roa {
 
         static std::unique_ptr<message> deserialize(std::string buffer);
     };
+
+    template class message<false>;
+    template class message<true>;
 }

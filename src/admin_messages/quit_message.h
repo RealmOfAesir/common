@@ -21,22 +21,19 @@
 #include <string>
 #include <memory>
 
-#include "message.h"
+#include "../messages/message.h"
 
 namespace roa {
     template <bool UseJson>
-    class login_message : public message<UseJson> {
+    class quit_message : public message<UseJson> {
     public:
-        login_message(std::string username, std::string password) noexcept;
+        quit_message() noexcept;
 
-        ~login_message() override;
+        ~quit_message() override;
 
         std::string serialize() override;
-
-        std::string username;
-        std::string password;
     };
 
-    template class login_message<false>;
-    template class login_message<true>;
+    template class quit_message<false>;
+    template class quit_message<true>;
 }

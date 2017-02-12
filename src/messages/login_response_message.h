@@ -24,7 +24,8 @@
 #include "message.h"
 
 namespace roa {
-    class login_response_message : public message {
+    template <bool UseJson>
+    class login_response_message : public message<UseJson> {
     public:
         login_response_message(int error, std::string error_str) noexcept;
 
@@ -35,4 +36,7 @@ namespace roa {
         int error;
         std::string error_str;
     };
+
+    template class login_response_message<false>;
+    template class login_response_message<true>;
 }

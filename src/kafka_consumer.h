@@ -26,17 +26,19 @@
 #include <rdkafkacpp.h>
 
 namespace roa {
+    template <bool UseJson>
     class ikafka_consumer {
     public:
         virtual ~ikafka_consumer() = default;
 
         virtual void close() = 0;
 
-        virtual std::unique_ptr<message> try_get_message(uint16_t ms_to_wait = 0) = 0;
+        virtual std::unique_ptr<message<UseJson>> try_get_message(uint16_t ms_to_wait = 0) = 0;
         virtual bool is_queue_empty() = 0;
     };
 
-    class kafka_consumer : public ikafka_consumer {
+    template <bool UseJson>
+    class kafka_consumer : public ikafka_consumer<UseJson> {
     public:
         kafka_consumer(std::string broker_list, std::string group_id, std::vector<std::string> topics, bool debug = false);
 
@@ -44,7 +46,7 @@ namespace roa {
 
         void close() override;
 
-        std::unique_ptr<message> try_get_message(uint16_t ms_to_wait = 0) override;
+        std::unique_ptr<message<UseJson>> try_get_message(uint16_t ms_to_wait = 0) override;
         bool is_queue_empty() override;
     private:
         bool _closing;

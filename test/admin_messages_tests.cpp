@@ -16,33 +16,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "login_response_message.h"
-
-#include <cereal/archives/binary.hpp>
-#include <cereal/archives/json.hpp>
-#include <cereal/types/string.hpp>
+#include <catch.hpp>
+#include <iostream>
 #include <sstream>
+#include <cereal/include/cereal/details/helpers.hpp>
+#include "messages/message.h"
+#include "admin_messages/quit_message.h"
 
 using namespace std;
 using namespace roa;
 
-template <bool UseJson>
-login_response_message<UseJson>::login_response_message(int error, std::string error_str) noexcept
-        : error(error), error_str(error_str) {}
+//TEST_SUITE("admin_message serialization/deserialization");
 
-template <bool UseJson>
-login_response_message<UseJson>::~login_response_message() {
-
+TEST_CASE("serialize/deserialize quit_message happy flow") {
+    quit_message<false> quit_msg;
+    auto serialized_message = quit_msg.serialize();
+    REQUIRE(serialized_message.length() > 0);
+    auto deserialized_message = message<false>::deserialize(serialized_message);
+    REQUIRE(deserialized_message != nullptr);
+    auto new_message = dynamic_cast<quit_message<false>*>(deserialized_message.get());
+    REQUIRE(new_message != nullptr);
 }
-
-template <bool UseJson>
-std::string login_response_message<UseJson>::serialize() {
-    stringstream ss;
-    {
-        typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
-
-        archive((uint32_t)LOGIN_RESPONSE_MESSAGE_TYPE, this->error, this->error_str);
-    }
-
-    return ss.str();
-}
+//TEST_SUITE_END();

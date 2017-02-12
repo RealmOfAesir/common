@@ -45,18 +45,20 @@ namespace roa {
         void dr_cb (RdKafka::Message &message);
     };
 
+    template <bool UseJson>
     class ikafka_producer {
     public:
         virtual ~ikafka_producer() = default;
 
         virtual void close() = 0;
 
-        virtual void send_message(std::unique_ptr<message> msg, uint16_t ms_to_wait = 0) = 0;
+        virtual void enqueue_message(std::unique_ptr<message<UseJson>> msg, uint16_t ms_to_wait = 0) = 0;
         virtual bool is_queue_empty() = 0;
         virtual int poll(uint32_t ms_to_wait) = 0;
     };
 
-    class kafka_producer : public ikafka_producer {
+    template <bool UseJson>
+    class kafka_producer : public ikafka_producer<UseJson> {
     public:
         kafka_producer(std::string broker_list, std::string topic_str, bool debug = false);
 
@@ -64,7 +66,7 @@ namespace roa {
 
         void close() override;
 
-        void send_message(std::unique_ptr<message> msg, uint16_t ms_to_wait = 0) override;
+        void enqueue_message(std::unique_ptr<message<UseJson>> msg, uint16_t ms_to_wait = 0) override;
         bool is_queue_empty() override;
         int poll(uint32_t ms_to_wait) override;
     private:

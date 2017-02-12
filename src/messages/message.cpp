@@ -20,54 +20,61 @@
 #include "login_message.h"
 #include "exceptions.h"
 #include "login_response_message.h"
+#include "misc.h"
 
 #include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
 #include <cereal/types/string.hpp>
 #include <sstream>
 #include <easylogging++.h>
+#include <admin_messages/quit_message.h>
 
 using namespace std;
 using namespace roa;
 
-std::unique_ptr<message> message::deserialize(std::string buffer) {
-    if(buffer.empty() || buffer.length() < 2) {
+template <bool UseJson>
+std::unique_ptr<message<UseJson>> message<UseJson>::deserialize(std::string buffer) {
+    if(buffer.empty() || buffer.length() < 4) {
         LOG(WARNING) << "[message] deserialize encountered empty buffer";
-        throw serialization_exception();
+        throw serialization_exception("empty buffer " + to_string(buffer.length()));
     }
 
-    if(buffer[0] > 2) {
-        LOG(WARNING) << "[message] deserialize encountered unknown message type: " << buffer[0];
-        throw serialization_exception();
-    }
-
+    uint32_t type;
     stringstream ss;
-    switch(buffer[0]) {
+    ss << buffer;
+    ss.flush();
+    typename conditional<UseJson, cereal::JSONInputArchive, cereal::BinaryInputArchive>::type archive(ss);
+    archive(type);
+
+    LOG(INFO) << "[message] type " << type << " with length " << buffer.size();
+
+    switch(type) {
         case LOGIN_MESSAGE_TYPE:
             LOG(INFO) << "[message] deserialize encountered LOGIN_MESSAGE_TYPE";
-            ss << buffer.substr(1);
-            ss.flush();
             {
                 std::string username;
                 std::string password;
-                cereal::BinaryInputArchive archive(ss);
                 archive(username, password);
-                return make_unique<login_message>(username, password);
+                return make_unique<login_message<UseJson>>(username, password);
             }
         case LOGIN_RESPONSE_MESSAGE_TYPE:
             LOG(INFO) << "[message] deserialize encountered LOGIN_RESPONSE_MESSAGE_TYPE";
-            ss << buffer.substr(1);
-            ss.flush();
             {
                 int error;
                 std::string error_str;
-                cereal::BinaryInputArchive archive(ss);
                 archive(error, error_str);
-                return make_unique<login_response_message>(error, error_str);
+                return make_unique<login_response_message<UseJson>>(error, error_str);
             }
-        default:
-            LOG(WARNING) << "[message] deserialize encountered unknown message type: " << buffer[0];
 
-            throw serialization_exception();
+        // ---- admin messages ----
+
+        case ADMIN_QUIT_MESSAGE_TYPE:
+            LOG(INFO) << "[message] deserialize encountered ADMIN_QUIT_MESSAGE_TYPE";
+            return make_unique<quit_message<UseJson>>();
+        default:
+            LOG(WARNING) << "[message] deserialize encountered unknown message type: " << type;
+
+            throw serialization_exception("unknown message type " + to_string(type));
     }
 }
 

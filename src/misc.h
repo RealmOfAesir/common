@@ -23,13 +23,15 @@
 
 using namespace std;
 
-template<typename U, typename ... T>
-bool one_of(U&& u, T && ... t)
-{
-    return ( (u == t) || ...  );
-}
-
 time_t get_current_time() noexcept {
     chrono::system_clock::time_point now = chrono::system_clock::now();
     return chrono::system_clock::to_time_t(now);
+}
+
+unsigned stou(std::string const & str, size_t * idx = 0, int base = 10) {
+    unsigned long result = stoul(str, idx, base);
+    if (result > numeric_limits<unsigned>::max()) {
+        throw out_of_range("stou");
+    }
+    return result;
 }

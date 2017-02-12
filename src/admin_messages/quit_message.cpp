@@ -16,27 +16,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include <sstream>
+#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
+#include "quit_message.h"
 
-#include <string>
-#include <memory>
+using namespace std;
+using namespace roa;
 
-#include "message.h"
+template <bool UseJson>
+quit_message<UseJson>::quit_message() noexcept {
 
-namespace roa {
-    template <bool UseJson>
-    class login_message : public message<UseJson> {
-    public:
-        login_message(std::string username, std::string password) noexcept;
+}
 
-        ~login_message() override;
+template <bool UseJson>
+quit_message<UseJson>::~quit_message() {
 
-        std::string serialize() override;
+}
 
-        std::string username;
-        std::string password;
-    };
+template <bool UseJson>
+std::string quit_message<UseJson>::serialize() {
+    stringstream ss;
+    {
+        typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
-    template class login_message<false>;
-    template class login_message<true>;
+        archive((uint32_t) ADMIN_QUIT_MESSAGE_TYPE);
+    }
+    return ss.str();
 }
