@@ -31,7 +31,7 @@ namespace roa {
 
         ~quit_message() override;
 
-        std::string serialize() override;
+        std::string const serialize() const override;
     };
 
     template class quit_message<false>;

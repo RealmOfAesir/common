@@ -35,7 +35,7 @@ quit_message<UseJson>::~quit_message() {
 }
 
 template <bool UseJson>
-std::string quit_message<UseJson>::serialize() {
+std::string const quit_message<UseJson>::serialize() const {
     stringstream ss;
     {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);

@@ -150,7 +150,7 @@ kafka_producer<UseJson>::~kafka_producer() {
 }
 
 template <bool UseJson>
-void kafka_producer<UseJson>::enqueue_message(unique_ptr<message<UseJson>> msg, uint16_t ms_to_wait) {
+void kafka_producer<UseJson>::enqueue_message(message<UseJson> const &msg, uint16_t ms_to_wait) {
     if(unlikely(!_producer) || unlikely(!_topic)) {
         LOG(ERROR) << "[kafka_producer] No producer or topic";
         throw kafka_exception("[kafka_producer] No producer or topic");
@@ -161,7 +161,7 @@ void kafka_producer<UseJson>::enqueue_message(unique_ptr<message<UseJson>> msg, 
         return;
     }
 
-    auto msg_str = msg->serialize();
+    auto msg_str = msg.serialize();
 
     RdKafka::ErrorCode resp = _producer->produce(_topic.get(), RdKafka::Topic::PARTITION_UA, RdKafka::Producer::RK_MSG_COPY,
                                                  const_cast<char *>(msg_str.c_str()), msg_str.size(), NULL, NULL);
@@ -169,6 +169,11 @@ void kafka_producer<UseJson>::enqueue_message(unique_ptr<message<UseJson>> msg, 
     if (resp != RdKafka::ERR_NO_ERROR /*&& resp != RdKafka::ERR__QUEUE_FULL*/) {
         LOG(ERROR) << "[kafka_producer] Produce failed: " << RdKafka::err2str(resp);
     }
+}
+
+template <bool UseJson>
+void kafka_producer<UseJson>::enqueue_message(message<UseJson> const * const msg, uint16_t ms_to_wait) {
+    this->enqueue_message(*msg);
 }
 
 template <bool UseJson>
@@ -209,3 +214,6 @@ void kafka_producer<UseJson>::close() {
     _producer.reset();
     _closing = false;
 }
+
+template class kafka_producer<false>;
+template class kafka_producer<true>;

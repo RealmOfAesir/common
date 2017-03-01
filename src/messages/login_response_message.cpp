@@ -36,7 +36,7 @@ login_response_message<UseJson>::~login_response_message() {
 }
 
 template <bool UseJson>
-std::string login_response_message<UseJson>::serialize() {
+std::string const login_response_message<UseJson>::serialize() const {
     stringstream ss;
     {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);

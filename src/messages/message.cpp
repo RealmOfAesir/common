@@ -33,7 +33,8 @@ using namespace std;
 using namespace roa;
 
 template <bool UseJson>
-std::unique_ptr<message<UseJson>> message<UseJson>::deserialize(std::string buffer) {
+template <bool UseJsonAsReturnType>
+tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType>>> message<UseJson>::deserialize(std::string buffer) {
     if(buffer.empty() || buffer.length() < 4) {
         LOG(WARNING) << "[message] deserialize encountered empty buffer";
         throw serialization_exception("empty buffer " + to_string(buffer.length()));
@@ -46,6 +47,10 @@ std::unique_ptr<message<UseJson>> message<UseJson>::deserialize(std::string buff
     typename conditional<UseJson, cereal::JSONInputArchive, cereal::BinaryInputArchive>::type archive(ss);
     archive(type);
 
+    if(UseJson) {
+        LOG(INFO) << "original json message: " << buffer;
+    }
+
     LOG(INFO) << "[message] type " << type << " with length " << buffer.size();
 
     switch(type) {
@@ -55,7 +60,7 @@ std::unique_ptr<message<UseJson>> message<UseJson>::deserialize(std::string buff
                 std::string username;
                 std::string password;
                 archive(username, password);
-                return make_unique<login_message<UseJson>>(username, password);
+                return make_tuple(type, make_unique<login_message<UseJsonAsReturnType>>(username, password));
             }
         case LOGIN_RESPONSE_MESSAGE_TYPE:
             LOG(INFO) << "[message] deserialize encountered LOGIN_RESPONSE_MESSAGE_TYPE";
@@ -63,14 +68,14 @@ std::unique_ptr<message<UseJson>> message<UseJson>::deserialize(std::string buff
                 int error;
                 std::string error_str;
                 archive(error, error_str);
-                return make_unique<login_response_message<UseJson>>(error, error_str);
+                return make_tuple(type, make_unique<login_response_message<UseJsonAsReturnType>>(error, error_str));
             }
 
         // ---- admin messages ----
 
         case ADMIN_QUIT_MESSAGE_TYPE:
             LOG(INFO) << "[message] deserialize encountered ADMIN_QUIT_MESSAGE_TYPE";
-            return make_unique<quit_message<UseJson>>();
+            return make_tuple(type, make_unique<quit_message<UseJsonAsReturnType>>());
         default:
             LOG(WARNING) << "[message] deserialize encountered unknown message type: " << type;
 
@@ -78,3 +83,7 @@ std::unique_ptr<message<UseJson>> message<UseJson>::deserialize(std::string buff
     }
 }
 
+template tuple<uint32_t, unique_ptr<message<false>>> message<false>::deserialize<false>(std::string buffer);
+template tuple<uint32_t, unique_ptr<message<false>>> message<true>::deserialize<false>(std::string buffer);
+template tuple<uint32_t, unique_ptr<message<true>>> message<false>::deserialize<true>(std::string buffer);
+template tuple<uint32_t, unique_ptr<message<true>>> message<true>::deserialize<true>(std::string buffer);

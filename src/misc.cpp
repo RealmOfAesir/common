@@ -16,13 +16,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include <stdexcept>
+#include "misc.h"
 
-#include <initializer_list>
-#include <chrono>
-#include <string>
-namespace roa {
-    time_t get_current_time() noexcept;
+using namespace std;
 
-    unsigned stou(std::string const &str, size_t *idx = 0, int base = 10);
+time_t get_current_time() noexcept {
+    chrono::system_clock::time_point now = chrono::system_clock::now();
+    return chrono::system_clock::to_time_t(now);
+}
+
+unsigned stou(std::string const & str, size_t * idx, int base) {
+    unsigned long result = stoul(str, idx, base);
+    if (result > numeric_limits<unsigned>::max()) {
+        throw out_of_range("stou");
+    }
+    return result;
 }

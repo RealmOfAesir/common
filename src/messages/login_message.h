@@ -31,7 +31,7 @@ namespace roa {
 
         ~login_message() override;
 
-        std::string serialize() override;
+        std::string const serialize() const override;
 
         std::string username;
         std::string password;

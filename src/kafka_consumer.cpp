@@ -145,7 +145,7 @@ kafka_consumer<UseJson>::~kafka_consumer() {
 }
 
 template <bool UseJson>
-unique_ptr<message<UseJson>> kafka_consumer<UseJson>::try_get_message(uint16_t ms_to_wait) {
+tuple<uint32_t, unique_ptr<message<UseJson>>> kafka_consumer<UseJson>::try_get_message(uint16_t ms_to_wait) {
     if(unlikely(!_consumer)) {
         LOG(ERROR) << "[kafka_consumer] No consumer";
         throw kafka_exception("[kafka_consumer] No consumer");
@@ -173,7 +173,7 @@ unique_ptr<message<UseJson>> kafka_consumer<UseJson>::try_get_message(uint16_t m
     }
 
     if(msg->len() == 0) {
-        LOG(INFO) << "[kafka_consumer] Received empty message with offset" << msg->offset();
+        LOG(INFO) << "[kafka_consumer] Received empty message with offset " << msg->offset();
         return {};
     }
 
@@ -187,7 +187,7 @@ unique_ptr<message<UseJson>> kafka_consumer<UseJson>::try_get_message(uint16_t m
         return {};
     }
 
-    return move(message<UseJson>::deserialize(payload_string));
+    return move(message<UseJson>::template deserialize<UseJson>(payload_string));
 }
 
 template <bool UseJson>
@@ -218,3 +218,6 @@ void kafka_consumer<UseJson>::close() {
     _consumer.reset();
     _closing = false;
 }
+
+template class kafka_consumer<false>;
+template class kafka_consumer<true>;

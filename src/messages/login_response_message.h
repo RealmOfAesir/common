@@ -31,7 +31,7 @@ namespace roa {
 
         ~login_response_message() override;
 
-        std::string serialize() override;
+        std::string const serialize() const override;
 
         int error;
         std::string error_str;

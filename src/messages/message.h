@@ -20,6 +20,7 @@
 
 #include <string>
 #include <memory>
+#include <tuple>
 
 #define LOGIN_MESSAGE_TYPE 0
 #define LOGIN_RESPONSE_MESSAGE_TYPE 1
@@ -32,11 +33,9 @@ namespace roa {
     public:
         virtual ~message() noexcept {};
 
-        virtual std::string serialize() = 0;
+        virtual std::string const serialize() const = 0;
 
-        static std::unique_ptr<message> deserialize(std::string buffer);
+        template <bool UseJsonAsReturnType>
+        static std::tuple<uint32_t, std::unique_ptr<message<UseJsonAsReturnType>>> deserialize(std::string buffer);
     };
-
-    template class message<false>;
-    template class message<true>;
 }

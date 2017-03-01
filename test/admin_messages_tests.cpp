@@ -28,13 +28,26 @@ using namespace roa;
 
 //TEST_SUITE("admin_message serialization/deserialization");
 
-TEST_CASE("serialize/deserialize quit_message happy flow") {
+TEST_CASE("serialize/deserialize quit_message binary happy flow") {
     quit_message<false> quit_msg;
     auto serialized_message = quit_msg.serialize();
     REQUIRE(serialized_message.length() > 0);
-    auto deserialized_message = message<false>::deserialize(serialized_message);
-    REQUIRE(deserialized_message != nullptr);
-    auto new_message = dynamic_cast<quit_message<false>*>(deserialized_message.get());
+    auto deserialized_message = message<false>::template deserialize<false>(serialized_message);
+    REQUIRE(get<0>(deserialized_message) == ADMIN_QUIT_MESSAGE_TYPE);
+    REQUIRE(get<1>(deserialized_message) != nullptr);
+    auto new_message = dynamic_cast<quit_message<false>*>(get<1>(deserialized_message).get());
     REQUIRE(new_message != nullptr);
 }
+
+TEST_CASE("serialize/deserialize quit_message json happy flow") {
+    quit_message<true> quit_msg;
+    auto serialized_message = quit_msg.serialize();
+    REQUIRE(serialized_message.length() > 0);
+    auto deserialized_message = message<true>::template deserialize<true>(serialized_message);
+    REQUIRE(get<0>(deserialized_message) == ADMIN_QUIT_MESSAGE_TYPE);
+    REQUIRE(get<1>(deserialized_message) != nullptr);
+    auto new_message = dynamic_cast<quit_message<true>*>(get<1>(deserialized_message).get());
+    REQUIRE(new_message != nullptr);
+}
+
 //TEST_SUITE_END();

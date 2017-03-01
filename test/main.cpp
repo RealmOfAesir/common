@@ -17,6 +17,9 @@
 */
 
 #define CATCH_CONFIG_RUNNER
+// TODO update easylloggingpp, since this define is not present in the current version of external
+#define ELPP_NO_LOG_TO_FILE
+
 #include <catch.hpp>
 #include <easylogging++.h>
 

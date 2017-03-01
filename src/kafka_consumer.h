@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <tuple>
 #include <rdkafkacpp.h>
 
 namespace roa {
@@ -33,7 +34,7 @@ namespace roa {
 
         virtual void close() = 0;
 
-        virtual std::unique_ptr<message<UseJson>> try_get_message(uint16_t ms_to_wait = 0) = 0;
+        virtual std::tuple<uint32_t, std::unique_ptr<message<UseJson>>> try_get_message(uint16_t ms_to_wait = 0) = 0;
         virtual bool is_queue_empty() = 0;
     };
 
@@ -46,7 +47,7 @@ namespace roa {
 
         void close() override;
 
-        std::unique_ptr<message<UseJson>> try_get_message(uint16_t ms_to_wait = 0) override;
+        std::tuple<uint32_t, std::unique_ptr<message<UseJson>>> try_get_message(uint16_t ms_to_wait = 0) override;
         bool is_queue_empty() override;
     private:
         bool _closing;
