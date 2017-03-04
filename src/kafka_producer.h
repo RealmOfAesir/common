@@ -52,8 +52,8 @@ namespace roa {
 
         virtual void close() = 0;
 
-        virtual void enqueue_message(message<UseJson> const &msg, uint16_t ms_to_wait = 0) = 0;
-        virtual void enqueue_message(message<UseJson> const * const msg, uint16_t ms_to_wait = 0) = 0;
+        virtual void enqueue_message(message<UseJson> const &msg) = 0;
+        virtual void enqueue_message(message<UseJson> const * const msg) = 0;
         virtual bool is_queue_empty() = 0;
         virtual int poll(uint32_t ms_to_wait) = 0;
     };
@@ -67,8 +67,8 @@ namespace roa {
 
         void close() override;
 
-        void enqueue_message(message<UseJson> const &msg, uint16_t ms_to_wait = 0) override;
-        void enqueue_message(message<UseJson> const * const msg, uint16_t ms_to_wait = 0) override;
+        void enqueue_message(message<UseJson> const &msg) override;
+        void enqueue_message(message<UseJson> const * const msg) override;
         bool is_queue_empty() override;
         int poll(uint32_t ms_to_wait) override;
     private:

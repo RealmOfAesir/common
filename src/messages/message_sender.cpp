@@ -16,36 +16,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include <string>
-#include <memory>
-#include <tuple>
-
+#include <cereal/include/cereal/archives/binary.hpp>
+#include <cereal/include/cereal/archives/json.hpp>
 #include "message_sender.h"
 
-#define LOGIN_MESSAGE_TYPE 0
-#define LOGIN_RESPONSE_MESSAGE_TYPE 1
-#define REGISTER_MESSAGE_TYPE 2
-#define REGISTER_RESPONSE_MESSAGE_TYPE 3
+using namespace roa;
+using namespace std;
 
-#define ADMIN_QUIT_MESSAGE_TYPE 10000
+message_sender::message_sender() : is_client(false), id(0) {
 
-namespace roa {
-    template <bool UseJson>
-    class message {
-    public:
-        message(message_sender sender);
-        virtual ~message() noexcept {};
-
-        virtual std::string const serialize() const = 0;
-
-        template <bool UseJsonAsReturnType>
-        static std::tuple<uint32_t, std::unique_ptr<message<UseJsonAsReturnType>>> deserialize(std::string buffer);
-
-        message_sender sender;
-    };
-
-    using json_message = message<true>;
-    using binary_message = message<false>;
 }
+
+message_sender::message_sender(bool is_client, uint32_t id) : is_client(is_client), id(id) {
+
+}
+
+template<class Archive>
+void message_sender::serialize(Archive &archive) {
+    archive(this->is_client, this->id);
+}
+
+template void message_sender::serialize(cereal::BinaryInputArchive &archive);
+template void message_sender::serialize(cereal::JSONInputArchive &archive);
+template void message_sender::serialize(cereal::BinaryOutputArchive &archive);
+template void message_sender::serialize(cereal::JSONOutputArchive &archive);
+

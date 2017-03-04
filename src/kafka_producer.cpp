@@ -150,7 +150,7 @@ kafka_producer<UseJson>::~kafka_producer() {
 }
 
 template <bool UseJson>
-void kafka_producer<UseJson>::enqueue_message(message<UseJson> const &msg, uint16_t ms_to_wait) {
+void kafka_producer<UseJson>::enqueue_message(message<UseJson> const &msg) {
     if(unlikely(!_producer) || unlikely(!_topic)) {
         LOG(ERROR) << "[kafka_producer] No producer or topic";
         throw kafka_exception("[kafka_producer] No producer or topic");
@@ -163,16 +163,25 @@ void kafka_producer<UseJson>::enqueue_message(message<UseJson> const &msg, uint1
 
     auto msg_str = msg.serialize();
 
-    RdKafka::ErrorCode resp = _producer->produce(_topic.get(), RdKafka::Topic::PARTITION_UA, RdKafka::Producer::RK_MSG_COPY,
-                                                 const_cast<char *>(msg_str.c_str()), msg_str.size(), NULL, NULL);
+    RdKafka::ErrorCode resp;
+    do {
+        resp = _producer->produce(_topic.get(), RdKafka::Topic::PARTITION_UA,
+                                                     RdKafka::Producer::RK_MSG_COPY,
+                                                     const_cast<char *>(msg_str.c_str()), msg_str.size(), NULL, NULL);
 
-    if (resp != RdKafka::ERR_NO_ERROR /*&& resp != RdKafka::ERR__QUEUE_FULL*/) {
-        LOG(ERROR) << "[kafka_producer] Produce failed: " << RdKafka::err2str(resp);
-    }
+        if (resp != RdKafka::ERR_NO_ERROR && resp != RdKafka::ERR__QUEUE_FULL) {
+            LOG(ERROR) << "[kafka_producer] Produce failed: " << RdKafka::err2str(resp);
+        }
+
+        if(resp == RdKafka::ERR__QUEUE_FULL) {
+            _producer->poll(10);
+        }
+
+    } while(resp == RdKafka::ERR__QUEUE_FULL);
 }
 
 template <bool UseJson>
-void kafka_producer<UseJson>::enqueue_message(message<UseJson> const * const msg, uint16_t ms_to_wait) {
+void kafka_producer<UseJson>::enqueue_message(message<UseJson> const * const msg) {
     this->enqueue_message(*msg);
 }
 

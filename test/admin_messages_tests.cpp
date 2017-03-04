@@ -26,10 +26,9 @@
 using namespace std;
 using namespace roa;
 
-//TEST_SUITE("admin_message serialization/deserialization");
-
 TEST_CASE("serialize/deserialize quit_message binary happy flow") {
-    quit_message<false> quit_msg;
+    message_sender sender(true, 1);
+    quit_message<false> quit_msg(sender);
     auto serialized_message = quit_msg.serialize();
     REQUIRE(serialized_message.length() > 0);
     auto deserialized_message = message<false>::template deserialize<false>(serialized_message);
@@ -40,7 +39,8 @@ TEST_CASE("serialize/deserialize quit_message binary happy flow") {
 }
 
 TEST_CASE("serialize/deserialize quit_message json happy flow") {
-    quit_message<true> quit_msg;
+    message_sender sender(true, 1);
+    quit_message<true> quit_msg(sender);
     auto serialized_message = quit_msg.serialize();
     REQUIRE(serialized_message.length() > 0);
     auto deserialized_message = message<true>::template deserialize<true>(serialized_message);
@@ -49,5 +49,3 @@ TEST_CASE("serialize/deserialize quit_message json happy flow") {
     auto new_message = dynamic_cast<quit_message<true>*>(get<1>(deserialized_message).get());
     REQUIRE(new_message != nullptr);
 }
-
-//TEST_SUITE_END();

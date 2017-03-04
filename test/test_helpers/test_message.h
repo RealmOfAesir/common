@@ -20,32 +20,22 @@
 
 #include <string>
 #include <memory>
-#include <tuple>
 
-#include "message_sender.h"
-
-#define LOGIN_MESSAGE_TYPE 0
-#define LOGIN_RESPONSE_MESSAGE_TYPE 1
-#define REGISTER_MESSAGE_TYPE 2
-#define REGISTER_RESPONSE_MESSAGE_TYPE 3
-
-#define ADMIN_QUIT_MESSAGE_TYPE 10000
+#include "messages/message.h"
 
 namespace roa {
     template <bool UseJson>
-    class message {
+    class test_message : public message<UseJson> {
     public:
-        message(message_sender sender);
-        virtual ~message() noexcept {};
+        test_message(message_sender sender) noexcept;
 
-        virtual std::string const serialize() const = 0;
+        ~test_message() override;
 
-        template <bool UseJsonAsReturnType>
-        static std::tuple<uint32_t, std::unique_ptr<message<UseJsonAsReturnType>>> deserialize(std::string buffer);
+        std::string const serialize() const override;
 
-        message_sender sender;
+        static constexpr uint32_t id = -1;
     };
-
-    using json_message = message<true>;
-    using binary_message = message<false>;
+    
+    using json_test_message = test_message<true>;
+    using binary_test_message = test_message<false>;
 }

@@ -19,24 +19,19 @@
 #pragma once
 
 #include <string>
-#include <memory>
-
-#include "message.h"
 
 namespace roa {
-    template <bool UseJson>
-    class login_message : public message<UseJson> {
+    class message_sender {
     public:
-        login_message(std::string username, std::string password) noexcept;
+        message_sender();
+        message_sender(bool is_client, uint32_t id);
+        message_sender(message_sender&&) = default;
+        constexpr message_sender(message_sender const &) = default;
 
-        ~login_message() override;
+        template<class Archive>
+        void serialize(Archive & archive);
 
-        std::string const serialize() const override;
-
-        std::string username;
-        std::string password;
+        bool is_client;
+        uint32_t id;
     };
-
-    template class login_message<false>;
-    template class login_message<true>;
 }

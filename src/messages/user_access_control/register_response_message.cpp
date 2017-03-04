@@ -16,36 +16,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <sstream>
+#include "register_response_message.h"
+
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
-#include "quit_message.h"
+#include <cereal/types/string.hpp>
+#include <sstream>
 
 using namespace std;
 using namespace roa;
 
 template <bool UseJson>
-quit_message<UseJson>::quit_message(message_sender sender) noexcept
-        : message<UseJson>(sender) {
+register_response_message<UseJson>::register_response_message(message_sender sender, int error, std::string error_str) noexcept
+        : message<UseJson>(sender), error(error), error_str(error_str) {}
+
+template <bool UseJson>
+register_response_message<UseJson>::~register_response_message() {
 
 }
 
 template <bool UseJson>
-quit_message<UseJson>::~quit_message() {
-
-}
-
-template <bool UseJson>
-string const quit_message<UseJson>::serialize() const {
+string const register_response_message<UseJson>::serialize() const {
     stringstream ss;
     {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
-        archive(quit_message<UseJson>::id, this->sender);
+        archive(register_response_message<UseJson>::id, this->sender, this->error, this->error_str);
     }
+
     return ss.str();
 }
 
-template<bool UseJson> uint32_t constexpr quit_message<UseJson>::id;
-template class quit_message<false>;
-template class quit_message<true>;
+template<bool UseJson> uint32_t constexpr register_response_message<UseJson>::id;
+template class register_response_message<false>;
+template class register_response_message<true>;

@@ -16,33 +16,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "login_message.h"
-
-#include <cereal/archives/binary.hpp>
-#include <cereal/archives/json.hpp>
-#include <cereal/types/string.hpp>
-#include <sstream>
+#include <catch.hpp>
+#include <iostream>
+#include <messages/message_callback_component.h>
+#include "test_helpers/test_message.h"
 
 using namespace std;
 using namespace roa;
 
-template <bool UseJson>
-login_message<UseJson>::login_message(std::string username, std::string password) noexcept
-        : username(username), password(password) {}
 
-template <bool UseJson>
-login_message<UseJson>::~login_message() {
+TEST_CASE("Register/deregister should work") {
+    message_callback_component<true> handler;
+    message_sender sender(true, 1);
+    json_test_message t_msg(sender);
+    uint32_t callbackCalled = 0;
+    handler.register_callback(json_test_message::id, [&](json_message const * const msg) -> void {
+        callbackCalled++;
+    });
 
-}
+    REQUIRE(callbackCalled == 0);
 
-template <bool UseJson>
-std::string const login_message<UseJson>::serialize() const {
-    stringstream ss;
-    {
-        typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
+    handler.call_callbacks_for(json_test_message::id, &t_msg);
 
-        archive((uint32_t)LOGIN_MESSAGE_TYPE, this->username, this->password);
-    }
+    REQUIRE(callbackCalled == 1);
 
-    return ss.str();
+    handler.deregister_callback(json_test_message::id);
+
+    handler.call_callbacks_for(json_test_message::id, &t_msg);
+
+    REQUIRE(callbackCalled == 1);
 }

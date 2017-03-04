@@ -17,9 +17,9 @@
 */
 
 #include "message.h"
-#include "login_message.h"
+#include "user_access_control/login_message.h"
 #include "exceptions.h"
-#include "login_response_message.h"
+#include "user_access_control/login_response_message.h"
 #include "misc.h"
 
 #include <cereal/archives/binary.hpp>
@@ -28,9 +28,16 @@
 #include <sstream>
 #include <easylogging++.h>
 #include <admin_messages/quit_message.h>
+#include <messages/user_access_control/register_message.h>
+#include <messages/user_access_control/register_response_message.h>
 
 using namespace std;
 using namespace roa;
+
+template <bool UseJson>
+message<UseJson>::message(message_sender sender) : sender(sender) {
+
+}
 
 template <bool UseJson>
 template <bool UseJsonAsReturnType>
@@ -41,11 +48,12 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType>>> message<UseJson>::dese
     }
 
     uint32_t type;
+    message_sender sender;
     stringstream ss;
     ss << buffer;
     ss.flush();
     typename conditional<UseJson, cereal::JSONInputArchive, cereal::BinaryInputArchive>::type archive(ss);
-    archive(type);
+    archive(type, sender);
 
     if(UseJson) {
         LOG(INFO) << "original json message: " << buffer;
@@ -54,28 +62,45 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType>>> message<UseJson>::dese
     LOG(INFO) << "[message] type " << type << " with length " << buffer.size();
 
     switch(type) {
-        case LOGIN_MESSAGE_TYPE:
+        case login_message<UseJson>::id:
             LOG(INFO) << "[message] deserialize encountered LOGIN_MESSAGE_TYPE";
             {
                 std::string username;
                 std::string password;
                 archive(username, password);
-                return make_tuple(type, make_unique<login_message<UseJsonAsReturnType>>(username, password));
+                return make_tuple(type, make_unique<login_message<UseJsonAsReturnType>>(sender, username, password));
             }
-        case LOGIN_RESPONSE_MESSAGE_TYPE:
+        case login_response_message<UseJson>::id:
             LOG(INFO) << "[message] deserialize encountered LOGIN_RESPONSE_MESSAGE_TYPE";
             {
                 int error;
                 std::string error_str;
                 archive(error, error_str);
-                return make_tuple(type, make_unique<login_response_message<UseJsonAsReturnType>>(error, error_str));
+                return make_tuple(type, make_unique<login_response_message<UseJsonAsReturnType>>(sender, error, error_str));
+            }
+        case register_message<UseJson>::id:
+            LOG(INFO) << "[message] deserialize encountered REGISTER_MESSAGE_TYPE";
+            {
+                std::string username;
+                std::string password;
+                std::string email;
+                archive(username, password, email);
+                return make_tuple(type, make_unique<register_message<UseJsonAsReturnType>>(sender, username, password, email));
+            }
+        case register_response_message<UseJson>::id:
+            LOG(INFO) << "[message] deserialize encountered REGISTER_RESPONSE_MESSAGE_TYPE";
+            {
+                int error;
+                std::string error_str;
+                archive(error, error_str);
+                return make_tuple(type, make_unique<register_response_message<UseJsonAsReturnType>>(sender, error, error_str));
             }
 
         // ---- admin messages ----
 
-        case ADMIN_QUIT_MESSAGE_TYPE:
+        case quit_message<UseJson>::id:
             LOG(INFO) << "[message] deserialize encountered ADMIN_QUIT_MESSAGE_TYPE";
-            return make_tuple(type, make_unique<quit_message<UseJsonAsReturnType>>());
+            return make_tuple(type, make_unique<quit_message<UseJsonAsReturnType>>(sender));
         default:
             LOG(WARNING) << "[message] deserialize encountered unknown message type: " << type;
 
@@ -83,6 +108,8 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType>>> message<UseJson>::dese
     }
 }
 
+template class message<false>;
+template class message<true>;
 template tuple<uint32_t, unique_ptr<message<false>>> message<false>::deserialize<false>(std::string buffer);
 template tuple<uint32_t, unique_ptr<message<false>>> message<true>::deserialize<false>(std::string buffer);
 template tuple<uint32_t, unique_ptr<message<true>>> message<false>::deserialize<true>(std::string buffer);

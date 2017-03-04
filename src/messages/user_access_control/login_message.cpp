@@ -16,36 +16,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <sstream>
+#include "login_message.h"
+
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
-#include "quit_message.h"
+#include <cereal/types/string.hpp>
+#include <sstream>
 
 using namespace std;
 using namespace roa;
 
 template <bool UseJson>
-quit_message<UseJson>::quit_message(message_sender sender) noexcept
-        : message<UseJson>(sender) {
+login_message<UseJson>::login_message(message_sender sender, string username, string password) noexcept
+        : message<UseJson>(sender), username(username), password(password) {}
+
+template <bool UseJson>
+login_message<UseJson>::~login_message() {
 
 }
 
 template <bool UseJson>
-quit_message<UseJson>::~quit_message() {
-
-}
-
-template <bool UseJson>
-string const quit_message<UseJson>::serialize() const {
+string const login_message<UseJson>::serialize() const {
     stringstream ss;
     {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
-        archive(quit_message<UseJson>::id, this->sender);
+        archive(login_message<UseJson>::id, this->sender, this->username, this->password);
     }
+
     return ss.str();
 }
 
-template<bool UseJson> uint32_t constexpr quit_message<UseJson>::id;
-template class quit_message<false>;
-template class quit_message<true>;
+template<bool UseJson> uint32_t constexpr login_message<UseJson>::id;
+template class login_message<false>;
+template class login_message<true>;

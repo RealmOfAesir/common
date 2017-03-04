@@ -21,90 +21,114 @@
 #include <sstream>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/string.hpp>
+#include <easyloggingpp/src/easylogging++.h>
+#include <messages/user_access_control/register_message.h>
+#include <messages/user_access_control/register_response_message.h>
 #include "messages/message.h"
-#include "messages/login_message.h"
-#include "messages/login_response_message.h"
+#include "messages/user_access_control/login_message.h"
+#include "messages/user_access_control/login_response_message.h"
 #include "exceptions.h"
 
 using namespace std;
 using namespace roa;
 
-//TEST_SUITE("message serialization/deserialization");
-
-TEST_CASE("serialize/deserialize login_message binary happy flow") {
-    login_message<false> login_msg("user", "pass");
-    auto serialized_message = login_msg.serialize();
+template <template<bool> class T, bool UseJson, class... Args>
+unique_ptr<T<UseJson>> test_happy_flow(uint32_t id, Args... args) {
+    message_sender sender(true, 1);
+    T<UseJson> T_inst(sender, args...);
+    auto serialized_message = T_inst.serialize();
     REQUIRE(serialized_message.length() > 0);
-    auto deserialized_message = message<false>::template deserialize<false>(serialized_message);
-    REQUIRE(get<0>(deserialized_message) == LOGIN_MESSAGE_TYPE);
+    auto deserialized_message = message<UseJson>::template deserialize<UseJson>(serialized_message);
+    REQUIRE(get<0>(deserialized_message) == id);
     REQUIRE(get<1>(deserialized_message) != nullptr);
-    auto new_message = dynamic_cast<login_message<false>*>(get<1>(deserialized_message).get());
-    REQUIRE(new_message != nullptr);
-    REQUIRE(new_message->username == "user");
-    REQUIRE(new_message->password == "pass");
+    return unique_ptr<T<UseJson>>(dynamic_cast<T<UseJson>*>(get<1>(deserialized_message).release()));
 }
 
-TEST_CASE("serialize/deserialize login_message json happy flow") {
-    login_message<true> login_msg("user", "pass");
-    auto serialized_message = login_msg.serialize();
-    REQUIRE(serialized_message.length() > 0);
-    auto deserialized_message = message<true>::template deserialize<true>(serialized_message);
-    REQUIRE(get<0>(deserialized_message) == LOGIN_MESSAGE_TYPE);
-    REQUIRE(get<1>(deserialized_message) != nullptr);
-    auto new_message = dynamic_cast<login_message<true>*>(get<1>(deserialized_message).get());
-    REQUIRE(new_message != nullptr);
-    REQUIRE(new_message->username == "user");
-    REQUIRE(new_message->password == "pass");
+TEST_CASE("serialize/deserialize login_message happy flow") {
+    auto new_json_message = test_happy_flow<login_message, true, string, string>(json_login_message::id, string("user"), string("pass"));
+    REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->sender.is_client == true);
+    REQUIRE(new_json_message->sender.id == 1);
+    REQUIRE(new_json_message->username == "user");
+    REQUIRE(new_json_message->password == "pass");
+
+    auto new_binary_message = test_happy_flow<login_message, false, string, string>(binary_login_message::id, string("user"), string("pass"));
+    REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->sender.is_client == true);
+    REQUIRE(new_binary_message->sender.id == 1);
+    REQUIRE(new_binary_message->username == "user");
+    REQUIRE(new_binary_message->password == "pass");
 }
 
 TEST_CASE("deserialize garbage") {
     REQUIRE_THROWS_AS(message<false>::template deserialize<false>(""), serialization_exception&);
-    REQUIRE_THROWS_AS(message<false>::template deserialize<false>("garbage"), serialization_exception&);
+    REQUIRE_THROWS_AS(message<false>::template deserialize<false>("garbage"), cereal::Exception&);
 }
 
 TEST_CASE("serialize/deserialize login_message errors") {
-    stringstream ss;
-    cereal::BinaryOutputArchive archive(ss);
-    archive((uint32_t)LOGIN_MESSAGE_TYPE, string("garbage"));
-    ss.flush();
-    REQUIRE_THROWS_AS(message<false>::template deserialize<false>(ss.str()), cereal::Exception&);
+    {
+        stringstream ss;
+        cereal::BinaryOutputArchive archive(ss);
+        archive((uint32_t) LOGIN_MESSAGE_TYPE, string("garbage"));
+        ss.flush();
+        REQUIRE_THROWS_AS(message<false>::template deserialize<false>(ss.str()), bad_alloc&);
+    }
+    {
+        stringstream ss;
+        cereal::BinaryOutputArchive archive(ss);
+        message_sender sender(true, 1);
+        archive((uint32_t) LOGIN_MESSAGE_TYPE, sender, string("garbage"));
+        ss.flush();
+        REQUIRE_THROWS_AS(message<false>::template deserialize<false>(ss.str()), cereal::Exception &);
+    }
 }
 
-TEST_CASE("serialize/deserialize login_response_message binary happy flow") {
-    login_response_message<false> login_response_msg(1, "test");
-    auto serialized_message = login_response_msg.serialize();
-    REQUIRE(serialized_message.length() > 0);
-    auto deserialized_message = message<false>::template deserialize<false>(serialized_message);
-    REQUIRE(get<0>(deserialized_message) == LOGIN_RESPONSE_MESSAGE_TYPE);
-    REQUIRE(get<1>(deserialized_message) != nullptr);
-    auto new_message = dynamic_cast<login_response_message<false>*>(get<1>(deserialized_message).get());
-    REQUIRE(new_message != nullptr);
-    REQUIRE(new_message->error == 1);
-    REQUIRE(new_message->error_str == "test");
+TEST_CASE("serialize/deserialize login_response_message happy flow") {
+    auto new_json_message = test_happy_flow<login_response_message, true, int, string>(json_login_response_message::id, 1, string("test"));
+    REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->sender.is_client == true);
+    REQUIRE(new_json_message->sender.id == 1);
+    REQUIRE(new_json_message->error == 1);
+    REQUIRE(new_json_message->error_str == "test");
+
+    auto new_binary_message = test_happy_flow<login_response_message, false, int, string>(binary_login_response_message::id, 1, string("test"));
+    REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->sender.is_client == true);
+    REQUIRE(new_binary_message->sender.id == 1);
+    REQUIRE(new_binary_message->error == 1);
+    REQUIRE(new_binary_message->error_str == "test");
 }
 
-TEST_CASE("serialize/deserialize login_response_message json happy flow") {
-    login_response_message<true> login_response_msg(1, "test");
-    auto serialized_message = login_response_msg.serialize();
-    REQUIRE(serialized_message.length() > 0);
-    auto deserialized_message = message<true>::template deserialize<true>(serialized_message);
-    REQUIRE(get<0>(deserialized_message) == LOGIN_RESPONSE_MESSAGE_TYPE);
-    REQUIRE(get<1>(deserialized_message) != nullptr);
-    auto new_message = dynamic_cast<login_response_message<true>*>(get<1>(deserialized_message).get());
-    REQUIRE(new_message != nullptr);
-    REQUIRE(new_message->error == 1);
-    REQUIRE(new_message->error_str == "test");
+TEST_CASE("serialize/deserialize register_message json happy flow") {
+    auto new_json_message = test_happy_flow<register_message, true, string, string, string>(json_register_message::id, string("user"), string("pass"), string("email"));
+    REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->sender.is_client == true);
+    REQUIRE(new_json_message->sender.id == 1);
+    REQUIRE(new_json_message->username == "user");
+    REQUIRE(new_json_message->password == "pass");
+    REQUIRE(new_json_message->email == "email");
+
+    auto new_binary_message = test_happy_flow<register_message, false, string, string, string>(binary_register_message::id, string("user"), string("pass"), string("email"));
+    REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->sender.is_client == true);
+    REQUIRE(new_binary_message->sender.id == 1);
+    REQUIRE(new_binary_message->username == "user");
+    REQUIRE(new_binary_message->password == "pass");
+    REQUIRE(new_binary_message->email == "email");
 }
 
-TEST_CASE("serialize/deserialize login_response_message errors") {
-    stringstream ss;
-    cereal::BinaryOutputArchive archive(ss);
-    archive((uint32_t)LOGIN_RESPONSE_MESSAGE_TYPE, string("garbage"));
-    REQUIRE_THROWS_AS(message<false>::template deserialize<false>(ss.str()), bad_alloc&);
-    ss.str("");
-    ss.clear();
-    archive((uint32_t)LOGIN_RESPONSE_MESSAGE_TYPE, (int)1);
-    REQUIRE_THROWS_AS(message<false>::template deserialize<false>(ss.str()), cereal::Exception&);
-}
+TEST_CASE("serialize/deserialize register_response_message json happy flow") {
+    auto new_json_message = test_happy_flow<register_response_message, true, int, string>(json_register_response_message::id, 1, string("test"));
+    REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->sender.is_client == true);
+    REQUIRE(new_json_message->sender.id == 1);
+    REQUIRE(new_json_message->error == 1);
+    REQUIRE(new_json_message->error_str == "test");
 
-//TEST_SUITE_END();
+    auto new_binary_message = test_happy_flow<register_response_message, false, int, string>(binary_register_response_message::id, 1, string("test"));
+    REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->sender.is_client == true);
+    REQUIRE(new_binary_message->sender.id == 1);
+    REQUIRE(new_binary_message->error == 1);
+    REQUIRE(new_binary_message->error_str == "test");
+}

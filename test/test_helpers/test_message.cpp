@@ -16,33 +16,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "login_response_message.h"
+#include "test_message.h"
 
-#include <cereal/archives/binary.hpp>
-#include <cereal/archives/json.hpp>
-#include <cereal/types/string.hpp>
-#include <sstream>
-
-using namespace std;
 using namespace roa;
+using namespace std;
 
 template <bool UseJson>
-login_response_message<UseJson>::login_response_message(int error, std::string error_str) noexcept
-        : error(error), error_str(error_str) {}
-
-template <bool UseJson>
-login_response_message<UseJson>::~login_response_message() {
+test_message<UseJson>::test_message(message_sender sender) noexcept : message<UseJson>(sender) {
 
 }
 
 template <bool UseJson>
-std::string const login_response_message<UseJson>::serialize() const {
-    stringstream ss;
-    {
-        typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
+test_message<UseJson>::~test_message() {
 
-        archive((uint32_t)LOGIN_RESPONSE_MESSAGE_TYPE, this->error, this->error_str);
-    }
-
-    return ss.str();
 }
+
+template <bool UseJson>
+std::string const test_message<UseJson>::serialize() const {
+    return "";
+}
+
+template class test_message<false>;
+template class test_message<true>;

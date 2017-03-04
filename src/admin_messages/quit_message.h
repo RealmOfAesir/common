@@ -27,13 +27,15 @@ namespace roa {
     template <bool UseJson>
     class quit_message : public message<UseJson> {
     public:
-        quit_message() noexcept;
+        quit_message(message_sender sender) noexcept;
 
         ~quit_message() override;
 
         std::string const serialize() const override;
+
+        static constexpr uint32_t id = ADMIN_QUIT_MESSAGE_TYPE;
     };
 
-    template class quit_message<false>;
-    template class quit_message<true>;
+    using json_quit_message = quit_message<true>;
+    using binary_quit_message = quit_message<false>;
 }

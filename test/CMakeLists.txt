@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(Test CXX)
 
-file(GLOB PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/*.cpp)
+file(GLOB PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/test_helpers/*.cpp)
 add_executable(Test ${PROJECT_SOURCES} main.cpp)
 
 add_test(NAME MyTest COMMAND Test)
