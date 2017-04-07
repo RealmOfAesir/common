@@ -33,7 +33,7 @@ using namespace std;
 using namespace roa;
 
 template <template<bool> class T, bool UseJson, class... Args>
-unique_ptr<T<UseJson>> test_happy_flow(uint32_t id, Args... args) {
+unique_ptr<T<UseJson> const> test_happy_flow(uint32_t id, Args... args) {
     message_sender sender(true, 1);
     T<UseJson> T_inst(sender, args...);
     auto serialized_message = T_inst.serialize();
@@ -41,7 +41,7 @@ unique_ptr<T<UseJson>> test_happy_flow(uint32_t id, Args... args) {
     auto deserialized_message = message<UseJson>::template deserialize<UseJson>(serialized_message);
     REQUIRE(get<0>(deserialized_message) == id);
     REQUIRE(get<1>(deserialized_message) != nullptr);
-    return unique_ptr<T<UseJson>>(dynamic_cast<T<UseJson>*>(get<1>(deserialized_message).release()));
+    return unique_ptr<T<UseJson> const>(dynamic_cast<T<UseJson> const*>(get<1>(deserialized_message).release()));
 }
 
 TEST_CASE("serialize/deserialize login_message happy flow") {

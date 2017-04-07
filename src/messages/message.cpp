@@ -41,7 +41,7 @@ message<UseJson>::message(message_sender sender) : sender(sender) {
 
 template <bool UseJson>
 template <bool UseJsonAsReturnType>
-tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType>>> message<UseJson>::deserialize(std::string buffer) {
+tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>::deserialize(std::string buffer) {
     if(buffer.empty() || buffer.length() < 4) {
         LOG(WARNING) << "[message] deserialize encountered empty buffer";
         throw serialization_exception("empty buffer " + to_string(buffer.length()));
@@ -110,7 +110,7 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType>>> message<UseJson>::dese
 
 template class message<false>;
 template class message<true>;
-template tuple<uint32_t, unique_ptr<message<false>>> message<false>::deserialize<false>(std::string buffer);
-template tuple<uint32_t, unique_ptr<message<false>>> message<true>::deserialize<false>(std::string buffer);
-template tuple<uint32_t, unique_ptr<message<true>>> message<false>::deserialize<true>(std::string buffer);
-template tuple<uint32_t, unique_ptr<message<true>>> message<true>::deserialize<true>(std::string buffer);
+template tuple<uint32_t, unique_ptr<message<false> const>> message<false>::deserialize<false>(std::string buffer);
+template tuple<uint32_t, unique_ptr<message<false> const>> message<true>::deserialize<false>(std::string buffer);
+template tuple<uint32_t, unique_ptr<message<true> const>> message<false>::deserialize<true>(std::string buffer);
+template tuple<uint32_t, unique_ptr<message<true> const>> message<true>::deserialize<true>(std::string buffer);

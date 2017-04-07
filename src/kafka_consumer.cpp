@@ -145,7 +145,7 @@ kafka_consumer<UseJson>::~kafka_consumer() {
 }
 
 template <bool UseJson>
-tuple<uint32_t, unique_ptr<message<UseJson>>> kafka_consumer<UseJson>::try_get_message(uint16_t ms_to_wait) {
+tuple<uint32_t, unique_ptr<message<UseJson> const>> kafka_consumer<UseJson>::try_get_message(uint16_t ms_to_wait) {
     if(unlikely(!_consumer)) {
         LOG(ERROR) << "[kafka_consumer] No consumer";
         throw kafka_exception("[kafka_consumer] No consumer");

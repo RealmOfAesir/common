@@ -21,6 +21,7 @@
 #include <string>
 #include <memory>
 #include <tuple>
+#include <sstream>
 
 #include "message_sender.h"
 
@@ -41,7 +42,7 @@ namespace roa {
         virtual std::string const serialize() const = 0;
 
         template <bool UseJsonAsReturnType>
-        static std::tuple<uint32_t, std::unique_ptr<message<UseJsonAsReturnType>>> deserialize(std::string buffer);
+        static std::tuple<uint32_t, std::unique_ptr<message<UseJsonAsReturnType> const>> deserialize(std::string buffer);
 
         message_sender sender;
     };
