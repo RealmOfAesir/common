@@ -3,7 +3,8 @@ project(Test CXX)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 file(GLOB PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/test_helpers/*.cpp)
-add_executable(Test ${PROJECT_SOURCES} main.cpp)
+file(GLOB EASYLOGGING_SOURCE ${CMAKE_SOURCE_DIR}/external/easyloggingpp/src/easylogging++.cc)
+add_executable(Test ${PROJECT_SOURCES} ${EASYLOGGING_SOURCE} main.cpp)
 
 add_test(NAME MyTest COMMAND Test)
 
