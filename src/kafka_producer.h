@@ -50,6 +50,7 @@ namespace roa {
     public:
         virtual ~ikafka_producer() = default;
 
+        virtual void start(std::string broker_list, std::string topic_str, bool debug = false) = 0;
         virtual void close() = 0;
 
         virtual void enqueue_message(message<UseJson> const &msg) = 0;
@@ -61,10 +62,11 @@ namespace roa {
     template <bool UseJson>
     class kafka_producer : public ikafka_producer<UseJson> {
     public:
-        kafka_producer(std::string broker_list, std::string topic_str, bool debug = false);
+        kafka_producer();
 
         ~kafka_producer();
 
+        void start(std::string broker_list, std::string topic_str, bool debug = false) override;
         void close() override;
 
         void enqueue_message(message<UseJson> const &msg) override;

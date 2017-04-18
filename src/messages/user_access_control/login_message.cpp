@@ -41,7 +41,10 @@ string const login_message<UseJson>::serialize() const {
     {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
-        archive(login_message<UseJson>::id, this->sender, this->username, this->password);
+        archive(cereal::make_nvp("id", login_message<UseJson>::id),
+                cereal::make_nvp("sender", this->sender),
+                cereal::make_nvp("username", this->username),
+                cereal::make_nvp("password", this->password));
     }
 
     return ss.str();

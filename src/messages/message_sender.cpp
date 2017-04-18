@@ -23,17 +23,17 @@
 using namespace roa;
 using namespace std;
 
-message_sender::message_sender() : is_client(false), id(0) {
+message_sender::message_sender() : is_client(false), client_id(0), origin_id(0), destination_id(0) { }
 
-}
-
-message_sender::message_sender(bool is_client, uint32_t id) : is_client(is_client), id(id) {
-
-}
+message_sender::message_sender(bool is_client, uint32_t client_id, uint32_t origin_id, uint32_t destination_id) :
+        is_client(is_client), client_id(client_id), origin_id(origin_id), destination_id(destination_id) { }
 
 template<class Archive>
 void message_sender::serialize(Archive &archive) {
-    archive(this->is_client, this->id);
+    archive(cereal::make_nvp("is_client", this->is_client),
+            cereal::make_nvp("client_id", this->client_id),
+            cereal::make_nvp("origin_id", this->origin_id),
+            cereal::make_nvp("destination_id", this->destination_id));
 }
 
 template void message_sender::serialize(cereal::BinaryInputArchive &archive);

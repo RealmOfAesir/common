@@ -27,8 +27,8 @@ using namespace std;
 using namespace roa;
 
 template <bool UseJson>
-login_response_message<UseJson>::login_response_message(message_sender sender, int error, string error_str) noexcept
-        : message<UseJson>(sender), error(error), error_str(error_str) {}
+login_response_message<UseJson>::login_response_message(message_sender sender, int error_number, string error_str) noexcept
+        : message<UseJson>(sender), error_number(error_number), error_str(error_str) {}
 
 template <bool UseJson>
 login_response_message<UseJson>::~login_response_message() {
@@ -41,7 +41,10 @@ string const login_response_message<UseJson>::serialize() const {
     {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
-        archive(login_response_message<UseJson>::id, this->sender, this->error, this->error_str);
+        archive(cereal::make_nvp("id", login_response_message<UseJson>::id),
+                cereal::make_nvp("sender", this->sender),
+                cereal::make_nvp("error_number", this->error_number),
+                cereal::make_nvp("error_str", this->error_str));
     }
 
     return ss.str();

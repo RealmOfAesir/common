@@ -65,8 +65,69 @@ public:
 ExampleRebalanceCb ex_rebalance_cb;*/
 
 template <bool UseJson>
-kafka_consumer<UseJson>::kafka_consumer(string broker_list, string group_id, vector<string> topics, bool debug)
+kafka_consumer<UseJson>::kafka_consumer()
     : _closing(), _consumer() {
+
+}
+
+template <bool UseJson>
+kafka_consumer<UseJson>::~kafka_consumer() {
+    close();
+}
+
+template <bool UseJson>
+tuple<uint32_t, unique_ptr<message<UseJson> const>> kafka_consumer<UseJson>::try_get_message(uint16_t ms_to_wait) {
+    if(unlikely(!_consumer)) {
+        LOG(ERROR) << "[kafka_consumer] No consumer";
+        throw kafka_exception("[kafka_consumer] No consumer");
+    }
+
+    if(unlikely(_closing)) {
+        return {};
+    }
+
+    unique_ptr<RdKafka::Message> msg;
+    {
+        RdKafka::Message *raw_msg = _consumer->consume(ms_to_wait);
+
+        if (!raw_msg) {
+            LOG(WARNING) << "[kafka_consumer] No message";
+            return {};
+        }
+
+        msg.reset(raw_msg);
+    }
+
+    if(msg->err() != RdKafka::ERR_NO_ERROR && msg->err() != RdKafka::ERR__TIMED_OUT) {
+        LOG(WARNING) << "[kafka_consumer] Message error: " << msg->errstr();
+        return {};
+    }
+
+    if(msg->len() == 0) {
+        LOG(INFO) << "[kafka_consumer] Received empty message with offset " << msg->offset();
+        return {};
+    }
+
+    LOG(INFO) << "[kafka_consumer] Received message at offset " << msg->offset() << " with size " << msg->len();
+
+    char* payload = static_cast<char*>(msg->payload());
+    string payload_string = string(payload, msg->len());
+
+    if(payload_string.size() == 0) {
+        LOG(INFO) << "[kafka_consumer] Converted message is empty";
+        return {};
+    }
+
+    return move(message<UseJson>::template deserialize<UseJson>(payload_string));
+}
+
+template <bool UseJson>
+bool kafka_consumer<UseJson>::is_queue_empty() {
+    return _consumer && _consumer->outq_len() == 0;
+}
+
+template <bool UseJson>
+void kafka_consumer<UseJson>::start(std::string broker_list, std::string group_id, std::vector<std::string> topics, bool debug) {
     string errstr;
     RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
     RdKafka::Conf *topic_conf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
@@ -137,62 +198,6 @@ kafka_consumer<UseJson>::kafka_consumer(string broker_list, string group_id, vec
     delete conf;
 
     LOG(INFO) << "[kafka_consumer] Created consumer " << _consumer->name();
-}
-
-template <bool UseJson>
-kafka_consumer<UseJson>::~kafka_consumer() {
-    close();
-}
-
-template <bool UseJson>
-tuple<uint32_t, unique_ptr<message<UseJson> const>> kafka_consumer<UseJson>::try_get_message(uint16_t ms_to_wait) {
-    if(unlikely(!_consumer)) {
-        LOG(ERROR) << "[kafka_consumer] No consumer";
-        throw kafka_exception("[kafka_consumer] No consumer");
-    }
-
-    if(unlikely(_closing)) {
-        return {};
-    }
-
-    unique_ptr<RdKafka::Message> msg;
-    {
-        RdKafka::Message *raw_msg = _consumer->consume(ms_to_wait);
-
-        if (!raw_msg) {
-            LOG(WARNING) << "[kafka_consumer] No message";
-            return {};
-        }
-
-        msg.reset(raw_msg);
-    }
-
-    if(msg->err() != RdKafka::ERR_NO_ERROR && msg->err() != RdKafka::ERR__TIMED_OUT) {
-        LOG(WARNING) << "[kafka_consumer] Message error: " << msg->errstr();
-        return {};
-    }
-
-    if(msg->len() == 0) {
-        LOG(INFO) << "[kafka_consumer] Received empty message with offset " << msg->offset();
-        return {};
-    }
-
-    LOG(INFO) << "[kafka_consumer] Received message at offset " << msg->offset() << " with size " << msg->len();
-
-    char* payload = static_cast<char*>(msg->payload());
-    string payload_string = string(payload, msg->len());
-
-    if(payload_string.size() == 0) {
-        LOG(INFO) << "[kafka_consumer] Converted message is empty";
-        return {};
-    }
-
-    return move(message<UseJson>::template deserialize<UseJson>(payload_string));
-}
-
-template <bool UseJson>
-bool kafka_consumer<UseJson>::is_queue_empty() {
-    return _consumer && _consumer->outq_len() == 0;
 }
 
 template <bool UseJson>

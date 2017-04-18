@@ -18,26 +18,25 @@
 
 #pragma once
 
-#include <string>
-#include <memory>
-
-#include "../message.h"
+#include <boost/di.hpp>
 
 namespace roa {
     template <bool UseJson>
-    class login_response_message : public message<UseJson> {
-    public:
-        login_response_message(message_sender sender, int error_number, std::string error_str) noexcept;
+    class ikafka_consumer;
+    template <bool UseJson>
+    class kafka_consumer;
 
-        ~login_response_message() override;
+    template <bool UseJson>
+    class ikafka_producer;
+    template <bool UseJson>
+    class kafka_producer;
 
-        std::string const serialize() const override;
-
-        int error_number;
-        std::string error_str;
-        static constexpr uint32_t id = LOGIN_RESPONSE_MESSAGE_TYPE;
+    auto create_common_di_injector = []() {
+        return boost::di::make_injector(
+                boost::di::bind<ikafka_consumer<true>>().to<kafka_consumer<true>>(),
+                boost::di::bind<ikafka_producer<true>>().to<kafka_producer<true>>(),
+                boost::di::bind<ikafka_consumer<false>>().to<kafka_consumer<false>>(),
+                boost::di::bind<ikafka_producer<false>>().to<kafka_producer<false>>()
+        );
     };
-
-    using json_login_response_message = login_response_message<true>;
-    using binary_login_response_message = login_response_message<false>;
 }

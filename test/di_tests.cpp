@@ -17,32 +17,26 @@
 */
 
 #include <catch.hpp>
-#include <iostream>
-#include <messages/message_callback_component.h>
-#include "test_helpers/test_message.h"
+#include <roa_di.h>
+#include <easylogging++.h>
+#include "kafka_producer.h"
+#include "kafka_consumer.h"
 
 using namespace std;
 using namespace roa;
 
-
-TEST_CASE("Register/deregister should work") {
-    message_callback_component<true> handler;
-    message_sender sender(true, 1);
-    json_test_message t_msg(sender);
-    uint32_t callbackCalled = 0;
-    handler.register_callback(json_test_message::id, [&](json_message const * const msg) -> void {
-        callbackCalled++;
-    });
-
-    REQUIRE(callbackCalled == 0);
-
-    handler.call_callbacks_for(json_test_message::id, &t_msg);
-
-    REQUIRE(callbackCalled == 1);
-
-    handler.deregister_callback(json_test_message::id);
-
-    handler.call_callbacks_for(json_test_message::id, &t_msg);
-
-    REQUIRE(callbackCalled == 1);
+TEST_CASE("di test") {
+    auto injector = create_common_di_injector();
+    auto producer = injector.create<unique_ptr<kafka_producer<false>>>();
+    auto producer2 = injector.create<unique_ptr<kafka_producer<true>>>();
+    auto consumer = injector.create<unique_ptr<kafka_consumer<false>>>();
+    auto consumer2 = injector.create<unique_ptr<kafka_consumer<true>>>();
+    REQUIRE(producer != nullptr);
+    REQUIRE_THROWS(producer->poll(1));
+    REQUIRE(producer2 != nullptr);
+    REQUIRE_THROWS(producer2->poll(1));
+    REQUIRE(consumer != nullptr);
+    REQUIRE_THROWS(consumer->try_get_message(1));
+    REQUIRE(consumer2 != nullptr);
+    REQUIRE_THROWS(consumer2->try_get_message(1));
 }

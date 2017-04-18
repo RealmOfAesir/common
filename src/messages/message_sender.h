@@ -24,7 +24,7 @@ namespace roa {
     class message_sender {
     public:
         message_sender();
-        message_sender(bool is_client, uint32_t id);
+        message_sender(bool is_client, uint32_t client_id, uint32_t origin_id, uint32_t destination_id);
         message_sender(message_sender&&) = default;
         constexpr message_sender(message_sender const &) = default;
 
@@ -32,6 +32,9 @@ namespace roa {
         void serialize(Archive & archive);
 
         bool is_client;
-        uint32_t id;
+        uint32_t client_id;
+        uint32_t origin_id;
+        uint32_t destination_id;
+
     };
 }

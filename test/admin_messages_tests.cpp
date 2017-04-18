@@ -22,30 +22,15 @@
 #include <cereal/include/cereal/details/helpers.hpp>
 #include "messages/message.h"
 #include "admin_messages/quit_message.h"
+#include "test_helpers.h"
 
 using namespace std;
 using namespace roa;
 
-TEST_CASE("serialize/deserialize quit_message binary happy flow") {
-    message_sender sender(true, 1);
-    quit_message<false> quit_msg(sender);
-    auto serialized_message = quit_msg.serialize();
-    REQUIRE(serialized_message.length() > 0);
-    auto deserialized_message = message<false>::template deserialize<false>(serialized_message);
-    REQUIRE(get<0>(deserialized_message) == ADMIN_QUIT_MESSAGE_TYPE);
-    REQUIRE(get<1>(deserialized_message) != nullptr);
-    auto new_message = dynamic_cast<quit_message<false> const *>(get<1>(deserialized_message).get());
-    REQUIRE(new_message != nullptr);
-}
+TEST_CASE("serialize/deserialize quit_message happy flow") {
+    auto new_json_message = test_happy_flow<quit_message, true>(json_quit_message::id);
+    REQUIRE(new_json_message != nullptr);
 
-TEST_CASE("serialize/deserialize quit_message json happy flow") {
-    message_sender sender(true, 1);
-    quit_message<true> quit_msg(sender);
-    auto serialized_message = quit_msg.serialize();
-    REQUIRE(serialized_message.length() > 0);
-    auto deserialized_message = message<true>::template deserialize<true>(serialized_message);
-    REQUIRE(get<0>(deserialized_message) == ADMIN_QUIT_MESSAGE_TYPE);
-    REQUIRE(get<1>(deserialized_message) != nullptr);
-    auto new_message = dynamic_cast<quit_message<true> const*>(get<1>(deserialized_message).get());
-    REQUIRE(new_message != nullptr);
+    auto new_binary_message = test_happy_flow<quit_message, false>(binary_quit_message::id);
+    REQUIRE(new_binary_message != nullptr);
 }

@@ -41,7 +41,7 @@ string const quit_message<UseJson>::serialize() const {
     {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
-        archive(quit_message<UseJson>::id, this->sender);
+        archive(cereal::make_nvp("id", quit_message<UseJson>::id), cereal::make_nvp("sender", this->sender));
     }
     return ss.str();
 }
