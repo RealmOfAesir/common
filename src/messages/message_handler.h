@@ -34,22 +34,24 @@ namespace roa {
     template <bool UseJson>
     class message_dispatcher {
     public:
-        message_dispatcher() : handlers() {}
+        message_dispatcher() : _handlers() {}
 
         template <template <bool> class handler, class... Args>
         void register_handler(Args... args) {
-            handlers[handler<UseJson>::message_id].push_back(std::make_unique<handler<UseJson>>(args...));
+            // https://stackoverflow.com/questions/15783342/should-i-use-c11-emplace-back-with-pointers-containters
+            // We're sticking with push_back(make_unique)
+            _handlers[handler<UseJson>::message_id].push_back(std::make_unique<handler<UseJson>>(args...));
         }
 
         template <class handler, class... Args>
         void register_handler(Args... args) {
-            handlers[handler::message_id].push_back(std::make_unique<handler>(args...));
+            _handlers[handler::message_id].push_back(std::make_unique<handler>(args...));
         }
 
         void trigger_handler(std::tuple<uint32_t, std::unique_ptr<message<UseJson> const>> &msg) {
-            auto iterator = handlers.find(std::get<0>(msg));
+            auto iterator = _handlers.find(std::get<0>(msg));
 
-            if(iterator == handlers.end()) {
+            if(iterator == _handlers.end()) {
                 return;
             }
 
@@ -58,6 +60,6 @@ namespace roa {
             }
         }
     private:
-        std::unordered_map<uint32_t, std::vector<std::unique_ptr<imessage_handler<UseJson>>>> handlers;
+        std::unordered_map<uint32_t, std::vector<std::unique_ptr<imessage_handler<UseJson>>>> _handlers;
     };
 }
