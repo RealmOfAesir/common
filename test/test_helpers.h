@@ -31,10 +31,10 @@ namespace roa {
         REQUIRE(std::get<0>(deserialized_message) == id);
         REQUIRE(std::get<1>(deserialized_message) != nullptr);
 
-        REQUIRE(std::get<1>(deserialized_message)->sender.is_client == true);
+        REQUIRE(std::get<1>(deserialized_message)->sender.is_for_client == true);
         REQUIRE(std::get<1>(deserialized_message)->sender.client_id == 1);
-        REQUIRE(std::get<1>(deserialized_message)->sender.origin_id == 2);
-        REQUIRE(std::get<1>(deserialized_message)->sender.destination_id == 3);
+        REQUIRE(std::get<1>(deserialized_message)->sender.server_origin_id == 2);
+        REQUIRE(std::get<1>(deserialized_message)->sender.server_destination_id == 3);
 
         return std::unique_ptr<T<UseJson> const>(dynamic_cast<T<UseJson> const *>(std::get<1>(deserialized_message).release()));
     }

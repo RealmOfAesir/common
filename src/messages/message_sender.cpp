@@ -23,17 +23,17 @@
 using namespace roa;
 using namespace std;
 
-message_sender::message_sender() : is_client(false), client_id(0), origin_id(0), destination_id(0) { }
+message_sender::message_sender() : is_for_client(false), client_id(0), server_origin_id(0), server_destination_id(0) { }
 
-message_sender::message_sender(bool is_client, uint32_t client_id, uint32_t origin_id, uint32_t destination_id) :
-        is_client(is_client), client_id(client_id), origin_id(origin_id), destination_id(destination_id) { }
+message_sender::message_sender(bool is_for_client, uint32_t client_id, uint32_t server_origin_id, uint32_t server_destination_id) :
+        is_for_client(is_for_client), client_id(client_id), server_origin_id(server_origin_id), server_destination_id(server_destination_id) { }
 
 template<class Archive>
 void message_sender::serialize(Archive &archive) {
-    archive(cereal::make_nvp("is_client", this->is_client),
+    archive(cereal::make_nvp("is_for_client", this->is_for_client),
             cereal::make_nvp("client_id", this->client_id),
-            cereal::make_nvp("origin_id", this->origin_id),
-            cereal::make_nvp("destination_id", this->destination_id));
+            cereal::make_nvp("server_origin_id", this->server_origin_id),
+            cereal::make_nvp("server_destination_id", this->server_destination_id));
 }
 
 template void message_sender::serialize(cereal::BinaryInputArchive &archive);

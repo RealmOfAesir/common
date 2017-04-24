@@ -24,17 +24,17 @@ namespace roa {
     class message_sender {
     public:
         message_sender();
-        message_sender(bool is_client, uint32_t client_id, uint32_t origin_id, uint32_t destination_id);
+        message_sender(bool is_for_client, uint32_t client_id, uint32_t server_origin_id, uint32_t server_destination_id);
         message_sender(message_sender&&) = default;
         constexpr message_sender(message_sender const &) = default;
 
         template<class Archive>
         void serialize(Archive & archive);
 
-        bool is_client;
+        bool is_for_client;
         uint32_t client_id;
-        uint32_t origin_id;
-        uint32_t destination_id;
+        uint32_t server_origin_id;
+        uint32_t server_destination_id;
 
     };
 }
