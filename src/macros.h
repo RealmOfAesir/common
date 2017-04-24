@@ -25,3 +25,5 @@
 #define likely(x)       (x)
 #define unlikely(x)     (x)
 #endif
+
+#define NAMEOF(x) #x
