@@ -21,8 +21,10 @@
 #include "messages/message.h"
 
 #include <string>
+#include <unordered_map>
 #include <memory>
 #include <rdkafkacpp.h>
+#include <mutex>
 
 namespace roa {
     class producer_event_callback : public RdKafka::EventCb {
@@ -50,11 +52,11 @@ namespace roa {
     public:
         virtual ~ikafka_producer() = default;
 
-        virtual void start(std::string broker_list, std::string topic_str, bool debug = false) = 0;
+        virtual void start(std::string broker_list, bool debug = false) = 0;
         virtual void close() = 0;
 
-        virtual void enqueue_message(message<UseJson> const &msg) = 0;
-        virtual void enqueue_message(message<UseJson> const * const msg) = 0;
+        virtual void enqueue_message(std::string topic_str, message<UseJson> const &msg) = 0;
+        virtual void enqueue_message(std::string topic_str, message<UseJson> const * const msg) = 0;
         virtual bool is_queue_empty() = 0;
         virtual int poll(uint32_t ms_to_wait) = 0;
     };
@@ -66,17 +68,18 @@ namespace roa {
 
         ~kafka_producer();
 
-        void start(std::string broker_list, std::string topic_str, bool debug = false) override;
+        void start(std::string broker_list, bool debug = false) override;
         void close() override;
 
-        void enqueue_message(message<UseJson> const &msg) override;
-        void enqueue_message(message<UseJson> const * const msg) override;
+        void enqueue_message(std::string topic_str, message<UseJson> const &msg) override;
+        void enqueue_message(std::string topic_str, message<UseJson> const * const msg) override;
         bool is_queue_empty() override;
         int poll(uint32_t ms_to_wait) override;
     private:
         bool _closing;
         std::unique_ptr<RdKafka::Producer> _producer;
-        std::unique_ptr<RdKafka::Topic> _topic;
+        std::unordered_map<std::string, std::unique_ptr<RdKafka::Topic>> _topics;
+        std::mutex _topics_mutex;
         producer_hash_partitioner_callback _hash_partitioner_callback;
         producer_delivery_callback _delivery_callback;
         producer_event_callback _event_callback;
