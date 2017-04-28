@@ -69,13 +69,15 @@ TEST_CASE("serialize/deserialize login_message errors") {
 }
 
 TEST_CASE("serialize/deserialize login_response_message happy flow") {
-    auto new_json_message = test_happy_flow<login_response_message, true, int, string>(json_login_response_message::id, 1, string("test"));
+    auto new_json_message = test_happy_flow<login_response_message, true, int, int, string>(json_login_response_message::id, 2, 1, string("test"));
     REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->admin_status == 2);
     REQUIRE(new_json_message->error_number == 1);
     REQUIRE(new_json_message->error_str == "test");
 
-    auto new_binary_message = test_happy_flow<login_response_message, false, int, string>(binary_login_response_message::id, 1, string("test"));
+    auto new_binary_message = test_happy_flow<login_response_message, false, int, int, string>(binary_login_response_message::id, 2, 1, string("test"));
     REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->admin_status == 2);
     REQUIRE(new_binary_message->error_number == 1);
     REQUIRE(new_binary_message->error_str == "test");
 }
@@ -95,13 +97,15 @@ TEST_CASE("serialize/deserialize register_message json happy flow") {
 }
 
 TEST_CASE("serialize/deserialize register_response_message json happy flow") {
-    auto new_json_message = test_happy_flow<register_response_message, true, int, string>(json_register_response_message::id, 1, string("test"));
+    auto new_json_message = test_happy_flow<register_response_message, true, int, int, string>(json_register_response_message::id, 2, 1, string("test"));
     REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->admin_status == 2);
     REQUIRE(new_json_message->error_number == 1);
     REQUIRE(new_json_message->error_str == "test");
 
-    auto new_binary_message = test_happy_flow<register_response_message, false, int, string>(binary_register_response_message::id, 1, string("test"));
+    auto new_binary_message = test_happy_flow<register_response_message, false, int, int, string>(binary_register_response_message::id, 2, 1, string("test"));
     REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->admin_status == 2);
     REQUIRE(new_binary_message->error_number == 1);
     REQUIRE(new_binary_message->error_str == "test");
 }
