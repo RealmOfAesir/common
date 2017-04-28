@@ -104,7 +104,7 @@ tuple<uint32_t, unique_ptr<message<UseJson> const>> kafka_consumer<UseJson>::try
     }
 
     if(msg->len() == 0) {
-        LOG(INFO) << "[kafka_consumer] Received empty message with offset " << msg->offset();
+        LOG(DEBUG) << "[kafka_consumer] Received empty message with offset " << msg->offset();
         return {};
     }
 
