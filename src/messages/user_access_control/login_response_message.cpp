@@ -27,7 +27,7 @@ using namespace std;
 using namespace roa;
 
 template <bool UseJson>
-login_response_message<UseJson>::login_response_message(message_sender sender, int admin_status, int error_number, string error_str) noexcept
+login_response_message<UseJson>::login_response_message(message_sender sender, int8_t admin_status, int error_number, string error_str) noexcept
         : message<UseJson>(sender), admin_status(admin_status), error_number(error_number), error_str(error_str) {}
 
 template <bool UseJson>

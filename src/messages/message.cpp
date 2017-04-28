@@ -73,7 +73,7 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         case login_response_message<UseJson>::id:
             LOG(INFO) << "[message] deserialize encountered LOGIN_RESPONSE_MESSAGE_TYPE";
             {
-                int admin_status;
+                int8_t admin_status;
                 int error;
                 std::string error_str;
                 archive(admin_status, error, error_str);
@@ -91,7 +91,7 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         case register_response_message<UseJson>::id:
             LOG(INFO) << "[message] deserialize encountered REGISTER_RESPONSE_MESSAGE_TYPE";
             {
-                int admin_status;
+                int8_t admin_status;
                 int error;
                 std::string error_str;
                 archive(admin_status, error, error_str);

@@ -27,13 +27,13 @@ namespace roa {
     template <bool UseJson>
     class login_response_message : public message<UseJson> {
     public:
-        login_response_message(message_sender sender, int admin_status, int error_number, std::string error_str) noexcept;
+        login_response_message(message_sender sender, int8_t admin_status, int error_number, std::string error_str) noexcept;
 
         ~login_response_message() override;
 
         std::string const serialize() const override;
 
-        int admin_status;
+        int8_t admin_status;
         int error_number;
         std::string error_str;
         static constexpr uint32_t id = LOGIN_RESPONSE_MESSAGE_TYPE;
