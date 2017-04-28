@@ -92,11 +92,11 @@ void kafka_producer<UseJson>::enqueue_message(std::string topic_str, message<Use
         return;
     }
 
-    unordered_map<string, unique_ptr<RdKafka::Topic>>::const_iterator topic;
+    RdKafka::Topic *topic;
     {
         lock_guard<mutex> l(_topics_mutex);
-        topic = _topics.find(topic_str);
-        if (unlikely(topic == end(_topics))) {
+        auto topic_iter = _topics.find(topic_str);
+        if (unlikely(topic_iter == end(_topics))) {
             std::string errstr;
             auto topic_conf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
 
@@ -105,13 +105,17 @@ void kafka_producer<UseJson>::enqueue_message(std::string topic_str, message<Use
                 throw kafka_exception("[kafka_producer] partitioner_cb");
             }
 
-            RdKafka::Topic *topic = RdKafka::Topic::create(_producer.get(), topic_str, topic_conf, errstr);
+            topic = RdKafka::Topic::create(_producer.get(), topic_str, topic_conf, errstr);
             if (!topic) {
                 LOG(ERROR) << "[kafka_producer] Failed to create topic: " << errstr;
                 throw kafka_exception("[kafka_producer] Failed to create topic");
             }
 
+            _topics[topic_str] = unique_ptr<RdKafka::Topic>(topic);
+
             delete topic_conf;
+        } else {
+            topic = get<1>(*topic_iter).get();
         }
     }
 
@@ -119,7 +123,7 @@ void kafka_producer<UseJson>::enqueue_message(std::string topic_str, message<Use
 
     RdKafka::ErrorCode resp;
     do {
-        resp = _producer->produce(topic->second.get(), RdKafka::Topic::PARTITION_UA,
+        resp = _producer->produce(topic, RdKafka::Topic::PARTITION_UA,
                                                        RdKafka::Producer::RK_MSG_COPY,
                                                        const_cast<char *>(msg_str.c_str()), msg_str.size(), NULL, NULL);
 
