@@ -39,8 +39,20 @@ namespace roa {
         message(message_sender sender);
         virtual ~message() noexcept {};
 
+        /**
+         * serialize to binary if UseJson = false, Json if UseJson = true.
+         * @return serialized string
+         * @throws whatever cereal might throw
+         */
         virtual std::string const serialize() const = 0;
 
+        /**
+         * deserialize string to message
+         * @tparam UseJsonAsReturnType
+         * @param buffer
+         * @return tuple of message type and a unique pointer to the message
+         * @throws serialization_exception if buffer is empty or if message type is not recognized
+         */
         template <bool UseJsonAsReturnType>
         static std::tuple<uint32_t, std::unique_ptr<message<UseJsonAsReturnType> const>> deserialize(std::string buffer);
 

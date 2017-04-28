@@ -21,6 +21,16 @@
 #include "messages/message_sender.h"
 
 namespace roa {
+    /**
+     * Setup a message of type T, add a sender and initialize with args, serialize and deserialize it, check if the
+     * sender converted properly and return a unique ptr to the result
+     * @tparam T
+     * @tparam UseJson
+     * @tparam Args
+     * @param id
+     * @param args
+     * @return
+     */
     template<template<bool> class T, bool UseJson, class... Args>
     std::unique_ptr<T<UseJson> const> test_happy_flow(uint32_t id, Args... args) {
         message_sender sender(true, 1, 2, 3);

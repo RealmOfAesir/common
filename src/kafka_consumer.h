@@ -32,10 +32,32 @@ namespace roa {
     public:
         virtual ~ikafka_consumer() = default;
 
+        /**
+         * Start the consumer with the given parameters and start listening
+         * @param broker_list comma-separated list of FQDN
+         * @param group_id kafka group this consumer belongs to
+         * @param topics list of topics to listen on
+         * @param debug give more stdout info
+         */
         virtual void start(std::string broker_list, std::string group_id, std::vector<std::string> topics, bool debug = false) = 0;
+
+        /**
+         * close the consumer, immediately stop try_get_message from working and wait a couple of seconds to process the queue
+         * before cleaning up.
+         */
         virtual void close() = 0;
 
+        /**
+         * Wait for a message from one of the kafka topics and deserialize it
+         * @param ms_to_wait -1 for indefinite, 0 for non-blocking, >0 for milliseconds to wait for a message
+         * @return tuple with message id and pointer to deserialized string if message found, otherwise empty tuple.
+         */
         virtual std::tuple<uint32_t, std::unique_ptr<message<UseJson> const>> try_get_message(uint16_t ms_to_wait = 0) = 0;
+
+        /**
+         * Check if kafka queue is empty
+         * @return true if empty, false if not
+         */
         virtual bool is_queue_empty() = 0;
     };
 

@@ -24,5 +24,13 @@
 namespace roa {
     time_t get_current_time() noexcept;
 
+    /**
+     * Convert a string to unsigned
+     * @param str
+     * @param idx
+     * @param base
+     * @return unsigned
+     * @throws out_of_range if value in str is more than unsigned.max()
+     */
     unsigned stou(std::string const &str, size_t *idx = 0, int base = 10);
 }

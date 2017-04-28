@@ -31,6 +31,8 @@ namespace roa {
         template<class Archive>
         void serialize(Archive & archive);
 
+        // if the message containing this sender is intended for a client
+        // usually this means that the message is sent to a gateway and passed on the a client
         bool is_for_client;
         uint32_t client_id;
         uint32_t server_origin_id;

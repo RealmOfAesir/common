@@ -52,12 +52,46 @@ namespace roa {
     public:
         virtual ~ikafka_producer() = default;
 
+        /**
+         * Start the producer with the given parameters
+         * @param broker_list comma-separated list of FQDN hosts that run kafka
+         * @param debug give more stdout info
+         */
         virtual void start(std::string broker_list, bool debug = false) = 0;
+
+        /**
+         * close the producer, immediately stop try_get_message from working and wait a couple of seconds to process the queue
+         * before cleaning up.
+         */
         virtual void close() = 0;
 
+        /**
+         * Enqueue a message on a given topic. If topic has not been used before, creates said topic.
+         * @param topic_str
+         * @param msg
+         * @threadsafe
+         */
         virtual void enqueue_message(std::string topic_str, message<UseJson> const &msg) = 0;
+
+        /**
+         * Enqueue a message on a given topic. If topic has not been used before, creates said topic.
+         * @param topic_str
+         * @param msg
+         * @threadsafe
+         */
         virtual void enqueue_message(std::string topic_str, message<UseJson> const * const msg) = 0;
+
+        /**
+         * Check if kafka queue is empty
+         * @return true if empty, false if not
+         */
         virtual bool is_queue_empty() = 0;
+
+        /**
+         * Poll the underlying kafka producer for messages or events. Has to be called at least a couple times per second
+         * @param ms_to_wait 0 for non-blocking, -1 for indefinite, >0 for blocking a maximum amount of ms
+         * @return number of events served
+         */
         virtual int poll(uint32_t ms_to_wait) = 0;
     };
 
