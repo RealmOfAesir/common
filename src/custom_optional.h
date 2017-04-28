@@ -21,9 +21,11 @@
 #ifdef __has_include
 #  if __has_include(<optional>)
 #    include <optional>
+#    define STD_OPTIONAL std::optional
 #  elif __has_include(<experimental/optional>)
 #    include <experimental/optional>
 #    define EXPERIMENTAL_OPTIONAL
+#    define STD_OPTIONAL std::experimental::optional
 #  else
 // badum-tish
 #    error "Couldn't find optional header: optional is not an optional dependency!"
