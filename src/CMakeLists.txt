@@ -17,3 +17,13 @@ include_directories("${CMAKE_SOURCE_DIR}/external/di/include")
 
 target_link_libraries(RealmOfAesirCommon PUBLIC ${CMAKE_SOURCE_DIR}/external/librdkafka/src/librdkafka.a)
 target_link_libraries(RealmOfAesirCommon PUBLIC ${CMAKE_SOURCE_DIR}/external/librdkafka/src-cpp/librdkafka++.a)
+
+find_package( ZLIB REQUIRED )
+include_directories( ${ZLIB_INCLUDE_DIRS} )
+target_link_libraries(RealmOfAesirCommon PUBLIC ${ZLIB_LIBRARIES} )
+
+find_package (Threads)
+target_link_libraries (RealmOfAesirCommon PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+
+find_package(OpenSSL REQUIRED)
+target_link_libraries (RealmOfAesirCommon PUBLIC ${OPENSSL_LIBRARIES})
