@@ -9,21 +9,7 @@ add_library(RealmOfAesirCommon ${PROJECT_SOURCES})
 include_directories("${PROJECT_SOURCE_DIR}")
 
 include_directories("${CMAKE_SOURCE_DIR}/external")
-include_directories("${CMAKE_SOURCE_DIR}/external/librdkafka/src-cpp")
 include_directories("${CMAKE_SOURCE_DIR}/external/cereal/include")
 include_directories("${CMAKE_SOURCE_DIR}/external/easyloggingpp/src")
 include_directories("${CMAKE_SOURCE_DIR}/external/json/src")
 include_directories("${CMAKE_SOURCE_DIR}/external/di/include")
-
-target_link_libraries(RealmOfAesirCommon PUBLIC ${CMAKE_SOURCE_DIR}/external/librdkafka/src/librdkafka.a)
-target_link_libraries(RealmOfAesirCommon PUBLIC ${CMAKE_SOURCE_DIR}/external/librdkafka/src-cpp/librdkafka++.a)
-
-find_package( ZLIB REQUIRED )
-include_directories( ${ZLIB_INCLUDE_DIRS} )
-target_link_libraries(RealmOfAesirCommon PUBLIC ${ZLIB_LIBRARIES} )
-
-find_package (Threads)
-target_link_libraries (RealmOfAesirCommon PUBLIC ${CMAKE_THREAD_LIBS_INIT})
-
-find_package(OpenSSL REQUIRED)
-target_link_libraries (RealmOfAesirCommon PUBLIC ${OPENSSL_LIBRARIES})

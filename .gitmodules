@@ -1,6 +1,3 @@
-[submodule "external/librdkafka"]
-	path = external/librdkafka
-	url = https://github.com/edenhill/librdkafka.git
 [submodule "external/di"]
 	path = external/di
 	url = https://github.com/boost-experimental/di.git
