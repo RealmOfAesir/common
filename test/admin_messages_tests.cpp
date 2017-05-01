@@ -19,7 +19,7 @@
 #include <catch.hpp>
 #include <iostream>
 #include <sstream>
-#include <cereal/include/cereal/details/helpers.hpp>
+#include <cereal/details/helpers.hpp>
 #include "messages/message.h"
 #include "admin_messages/quit_message.h"
 #include "test_helpers.h"

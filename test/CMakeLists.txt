@@ -10,7 +10,6 @@ add_test(NAME MyTest COMMAND Test)
 
 
 include_directories("${CMAKE_SOURCE_DIR}/src")
-include_directories("${CMAKE_SOURCE_DIR}/external")
 include_directories("${CMAKE_SOURCE_DIR}/external/cereal/include")
 include_directories("${CMAKE_SOURCE_DIR}/external/easyloggingpp/src")
 include_directories("${CMAKE_SOURCE_DIR}/external/json/src")

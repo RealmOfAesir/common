@@ -21,7 +21,7 @@
 #include <sstream>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/string.hpp>
-#include <easyloggingpp/src/easylogging++.h>
+#include <easylogging++.h>
 #include <messages/user_access_control/register_message.h>
 #include <messages/user_access_control/register_response_message.h>
 #include "messages/message.h"
