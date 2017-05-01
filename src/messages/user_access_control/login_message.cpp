@@ -31,7 +31,7 @@ login_message<UseJson>::login_message(message_sender sender, string username, st
         : message<UseJson>(sender), username(username), password(password) {}
 
 template <bool UseJson>
-login_message<UseJson>::~login_message() {
+login_message<UseJson>::~login_message() noexcept {
 
 }
 

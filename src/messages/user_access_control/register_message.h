@@ -29,7 +29,7 @@ namespace roa {
     public:
         register_message(message_sender sender, std::string username, std::string password, std::string email) noexcept;
 
-        ~register_message() override;
+        ~register_message() noexcept override;
 
         std::string const serialize() const override;
 

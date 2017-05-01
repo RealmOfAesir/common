@@ -25,19 +25,20 @@
 
 namespace roa {
     template <bool UseJson>
-    class login_message : public message<UseJson> {
+    class chat_send_message : public message<UseJson> {
     public:
-        login_message(message_sender sender, std::string username, std::string password) noexcept;
+        chat_send_message(message_sender sender, std::string from_username, std::string target, std::string message) noexcept;
 
-        ~login_message() noexcept override;
+        ~chat_send_message() noexcept override;
 
         std::string const serialize() const override;
 
-        std::string username;
-        std::string password;
-        static constexpr uint32_t id = LOGIN_MESSAGE_TYPE;
+        std::string from_username;
+        std::string target;
+        std::string message;
+        static constexpr uint32_t id = CHAT_SEND_MESSAGE_TYPE;
     };
 
-    using json_login_message = login_message<true>;
-    using binary_login_message = login_message<false>;
+    using json_chat_send_message = chat_send_message<true>;
+    using binary_chat_send_message = chat_send_message<false>;
 }

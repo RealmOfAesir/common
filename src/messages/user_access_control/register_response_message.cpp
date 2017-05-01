@@ -31,7 +31,7 @@ register_response_message<UseJson>::register_response_message(message_sender sen
         : message<UseJson>(sender), admin_status(admin_status), error_number(error_number), error_str(error_str) {}
 
 template <bool UseJson>
-register_response_message<UseJson>::~register_response_message() {
+register_response_message<UseJson>::~register_response_message() noexcept {
 
 }
 

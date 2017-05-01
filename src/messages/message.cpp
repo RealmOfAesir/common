@@ -30,6 +30,8 @@
 #include <admin_messages/quit_message.h>
 #include <messages/user_access_control/register_message.h>
 #include <messages/user_access_control/register_response_message.h>
+#include <messages/chat/chat_receive_message.h>
+#include <messages/chat/chat_send_message.h>
 
 using namespace std;
 using namespace roa;
@@ -63,7 +65,6 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
 
     switch(type) {
         case login_message<UseJson>::id:
-            LOG(INFO) << "[message] deserialize encountered LOGIN_MESSAGE_TYPE";
             {
                 std::string username;
                 std::string password;
@@ -71,7 +72,6 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
                 return make_tuple(type, make_unique<login_message<UseJsonAsReturnType>>(sender, username, password));
             }
         case login_response_message<UseJson>::id:
-            LOG(INFO) << "[message] deserialize encountered LOGIN_RESPONSE_MESSAGE_TYPE";
             {
                 int8_t admin_status;
                 int error;
@@ -80,7 +80,6 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
                 return make_tuple(type, make_unique<login_response_message<UseJsonAsReturnType>>(sender, admin_status, error, error_str));
             }
         case register_message<UseJson>::id:
-            LOG(INFO) << "[message] deserialize encountered REGISTER_MESSAGE_TYPE";
             {
                 std::string username;
                 std::string password;
@@ -89,7 +88,6 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
                 return make_tuple(type, make_unique<register_message<UseJsonAsReturnType>>(sender, username, password, email));
             }
         case register_response_message<UseJson>::id:
-            LOG(INFO) << "[message] deserialize encountered REGISTER_RESPONSE_MESSAGE_TYPE";
             {
                 int8_t admin_status;
                 int error;
@@ -97,11 +95,26 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
                 archive(admin_status, error, error_str);
                 return make_tuple(type, make_unique<register_response_message<UseJsonAsReturnType>>(sender, admin_status, error, error_str));
             }
+        case chat_send_message<UseJson>::id:
+            {
+                string from_username;
+                string target;
+                string message;
+                archive(from_username, target, message);
+                return make_tuple(type, make_unique<chat_send_message<UseJsonAsReturnType>>(sender, from_username, target, message));
+            }
+        case chat_receive_message<UseJson>::id:
+            {
+                string from_username;
+                string target;
+                string message;
+                archive(from_username, target, message);
+                return make_tuple(type, make_unique<chat_receive_message<UseJsonAsReturnType>>(sender, from_username, target, message));
+            }
 
         // ---- admin messages ----
 
         case quit_message<UseJson>::id:
-            LOG(INFO) << "[message] deserialize encountered ADMIN_QUIT_MESSAGE_TYPE";
             return make_tuple(type, make_unique<quit_message<UseJsonAsReturnType>>(sender));
         default:
             LOG(WARNING) << "[message] deserialize encountered unknown message type: " << type;

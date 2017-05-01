@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "register_message.h"
+#include "chat_receive_message.h"
 
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
@@ -27,30 +27,30 @@ using namespace std;
 using namespace roa;
 
 template <bool UseJson>
-register_message<UseJson>::register_message(message_sender sender, string username, string password, string email) noexcept
-        : message<UseJson>(sender), username(username), password(password), email(email) {}
+chat_receive_message<UseJson>::chat_receive_message(message_sender sender, std::string from_username, std::string target, std::string message) noexcept
+        : message<UseJson>(sender), from_username(from_username), target(target), message(message) {}
 
 template <bool UseJson>
-register_message<UseJson>::~register_message() noexcept {
+chat_receive_message<UseJson>::~chat_receive_message() noexcept {
 
 }
 
 template <bool UseJson>
-string const register_message<UseJson>::serialize() const {
+string const chat_receive_message<UseJson>::serialize() const {
     stringstream ss;
     {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
-        archive(cereal::make_nvp("id", register_message<UseJson>::id),
+        archive(cereal::make_nvp("id", chat_receive_message<UseJson>::id),
                 cereal::make_nvp("sender", this->sender),
-                cereal::make_nvp("username", this->username),
-                cereal::make_nvp("password", this->password),
-                cereal::make_nvp("email", this->email));
+                cereal::make_nvp("from_username", this->from_username),
+                cereal::make_nvp("target", this->target),
+                cereal::make_nvp("message", this->message));
     }
 
     return ss.str();
 }
 
-template<bool UseJson> uint32_t constexpr register_message<UseJson>::id;
-template class register_message<false>;
-template class register_message<true>;
+template<bool UseJson> uint32_t constexpr chat_receive_message<UseJson>::id;
+template class chat_receive_message<false>;
+template class chat_receive_message<true>;

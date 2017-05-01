@@ -27,6 +27,8 @@
 #include "messages/message.h"
 #include "messages/user_access_control/login_message.h"
 #include "messages/user_access_control/login_response_message.h"
+#include "messages/chat/chat_send_message.h"
+#include "messages/chat/chat_receive_message.h"
 #include "exceptions.h"
 #include "test_helpers.h"
 
@@ -108,4 +110,32 @@ TEST_CASE("serialize/deserialize register_response_message json happy flow") {
     REQUIRE(new_binary_message->admin_status == 2);
     REQUIRE(new_binary_message->error_number == 1);
     REQUIRE(new_binary_message->error_str == "test");
+}
+
+TEST_CASE("serialize/deserialize chat_send_message json happy flow") {
+    auto new_json_message = test_happy_flow<chat_send_message, true, string, string, string>(json_chat_send_message::id, "user"s, "target"s, "msg"s);
+    REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->from_username == "user"s);
+    REQUIRE(new_json_message->target == "target"s);
+    REQUIRE(new_json_message->message == "msg"s);
+
+    auto new_binary_message = test_happy_flow<chat_send_message, false, string, string, string>(binary_chat_send_message::id, "user"s, "target"s, "msg"s);
+    REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->from_username == "user"s);
+    REQUIRE(new_binary_message->target == "target"s);
+    REQUIRE(new_binary_message->message == "msg"s);
+}
+
+TEST_CASE("serialize/deserialize chat_receive_message json happy flow") {
+    auto new_json_message = test_happy_flow<chat_receive_message, true, string, string, string>(json_chat_receive_message::id, "user"s, "target"s, "msg"s);
+    REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->from_username == "user"s);
+    REQUIRE(new_json_message->target == "target"s);
+    REQUIRE(new_json_message->message == "msg"s);
+
+    auto new_binary_message = test_happy_flow<chat_receive_message, false, string, string, string>(binary_chat_receive_message::id, "user"s, "target"s, "msg"s);
+    REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->from_username == "user"s);
+    REQUIRE(new_binary_message->target == "target"s);
+    REQUIRE(new_binary_message->message == "msg"s);
 }
