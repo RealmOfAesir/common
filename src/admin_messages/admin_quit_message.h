@@ -16,29 +16,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define CATCH_CONFIG_RUNNER
+#pragma once
 
-#include <catch.hpp>
-#include <easylogging++.h>
+#include <string>
 
-INITIALIZE_EASYLOGGINGPP
+#include "../messages/message.h"
 
-using namespace std;
+namespace roa {
+    template <bool UseJson>
+    class admin_quit_message : public message<UseJson> {
+    public:
+        admin_quit_message(message_sender sender) noexcept;
 
-void init_stuff() {
-    ios::sync_with_stdio(false);
+        ~admin_quit_message() override;
 
-    el::Configurations defaultConf;
-    defaultConf.setGlobally(el::ConfigurationType::Format, "%datetime %level: %msg");
-    el::Loggers::reconfigureAllLoggers(defaultConf);
-}
+        std::string const serialize() const override;
 
-int main(int argc, char const * const * argv) {
-    init_stuff();
+        static constexpr uint32_t id = 10000;
+    };
 
-    int result = Catch::Session().run( argc, argv );
-
-    // global clean-up...
-
-    return ( result < 0xff ? result : 0xff );
+    using json_quit_message = admin_quit_message<true>;
+    using binary_quit_message = admin_quit_message<false>;
 }

@@ -19,7 +19,6 @@
 #pragma once
 
 #include <string>
-#include <memory>
 
 #include "../message.h"
 
@@ -35,7 +34,7 @@ namespace roa {
 
         std::string username;
         std::string password;
-        static constexpr uint32_t id = LOGIN_MESSAGE_TYPE;
+        static constexpr uint32_t id = 0;
     };
 
     using json_login_message = login_message<true>;

@@ -19,7 +19,6 @@
 #pragma once
 
 #include <string>
-#include <memory>
 
 #include "../message.h"
 
@@ -36,7 +35,7 @@ namespace roa {
         std::string from_username;
         std::string target;
         std::string message;
-        static constexpr uint32_t id = CHAT_SEND_MESSAGE_TYPE;
+        static constexpr uint32_t id = 4;
     };
 
     using json_chat_send_message = chat_send_message<true>;

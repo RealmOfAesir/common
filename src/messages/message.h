@@ -25,15 +25,6 @@
 
 #include "message_sender.h"
 
-#define LOGIN_MESSAGE_TYPE 0
-#define LOGIN_RESPONSE_MESSAGE_TYPE 1
-#define REGISTER_MESSAGE_TYPE 2
-#define REGISTER_RESPONSE_MESSAGE_TYPE 3
-#define CHAT_SEND_MESSAGE_TYPE 4
-#define CHAT_RECEIVE_MESSAGE_TYPE 5
-
-#define ADMIN_QUIT_MESSAGE_TYPE 10000
-
 namespace roa {
     template <bool UseJson>
     class message {
@@ -53,7 +44,7 @@ namespace roa {
          * @tparam UseJsonAsReturnType
          * @param buffer
          * @return tuple of message type and a unique pointer to the message
-         * @throws serialization_exception if buffer is empty or if message type is not recognized
+         * @throws serialization_exception if buffer is empty or if message type is not recognized or cereal exception if message incomplete
          */
         template <bool UseJsonAsReturnType>
         static std::tuple<uint32_t, std::unique_ptr<message<UseJsonAsReturnType> const>> deserialize(std::string buffer);

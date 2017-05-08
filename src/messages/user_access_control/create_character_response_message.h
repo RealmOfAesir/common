@@ -19,23 +19,24 @@
 #pragma once
 
 #include <string>
-#include <memory>
 
-#include "../messages/message.h"
+#include "../message.h"
 
 namespace roa {
     template <bool UseJson>
-    class quit_message : public message<UseJson> {
+    class create_character_response_message : public message<UseJson> {
     public:
-        quit_message(message_sender sender) noexcept;
+        create_character_response_message(message_sender sender, int error_number, std::string error_str) noexcept;
 
-        ~quit_message() override;
+        ~create_character_response_message() noexcept override;
 
         std::string const serialize() const override;
 
-        static constexpr uint32_t id = ADMIN_QUIT_MESSAGE_TYPE;
+        int error_number;
+        std::string error_str;
+        static constexpr uint32_t id = 8;
     };
 
-    using json_quit_message = quit_message<true>;
-    using binary_quit_message = quit_message<false>;
+    using json_create_character_response_message = create_character_response_message<true>;
+    using binary_create_character_response_message = create_character_response_message<false>;
 }

@@ -16,29 +16,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define CATCH_CONFIG_RUNNER
+#pragma once
 
-#include <catch.hpp>
-#include <easylogging++.h>
+#include <string>
 
-INITIALIZE_EASYLOGGINGPP
+#include "../message.h"
 
-using namespace std;
+namespace roa {
+    template <bool UseJson>
+    class logout_message : public message<UseJson> {
+    public:
+        logout_message(message_sender sender) noexcept;
 
-void init_stuff() {
-    ios::sync_with_stdio(false);
+        ~logout_message() noexcept override;
 
-    el::Configurations defaultConf;
-    defaultConf.setGlobally(el::ConfigurationType::Format, "%datetime %level: %msg");
-    el::Loggers::reconfigureAllLoggers(defaultConf);
-}
+        std::string const serialize() const override;
 
-int main(int argc, char const * const * argv) {
-    init_stuff();
+        static constexpr uint32_t id = 6;
+    };
 
-    int result = Catch::Session().run( argc, argv );
-
-    // global clean-up...
-
-    return ( result < 0xff ? result : 0xff );
+    using json_logout_message = logout_message<true>;
+    using binary_logout_message = logout_message<false>;
 }

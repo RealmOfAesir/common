@@ -16,29 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define CATCH_CONFIG_RUNNER
+#pragma once
 
-#include <catch.hpp>
-#include <easylogging++.h>
+#include <string>
 
-INITIALIZE_EASYLOGGINGPP
+#include "../message.h"
 
-using namespace std;
+namespace roa {
+    template <bool UseJson>
+    class play_character_message : public message<UseJson> {
+    public:
+        play_character_message(message_sender sender, std::string playername) noexcept;
 
-void init_stuff() {
-    ios::sync_with_stdio(false);
+        ~play_character_message() noexcept override;
 
-    el::Configurations defaultConf;
-    defaultConf.setGlobally(el::ConfigurationType::Format, "%datetime %level: %msg");
-    el::Loggers::reconfigureAllLoggers(defaultConf);
-}
+        std::string const serialize() const override;
 
-int main(int argc, char const * const * argv) {
-    init_stuff();
+        std::string playername;
+        static constexpr uint32_t id = 9;
+    };
 
-    int result = Catch::Session().run( argc, argv );
-
-    // global clean-up...
-
-    return ( result < 0xff ? result : 0xff );
+    using json_play_character_message = play_character_message<true>;
+    using binary_play_character_message = play_character_message<false>;
 }

@@ -16,29 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define CATCH_CONFIG_RUNNER
-
 #include <catch.hpp>
+#include <iostream>
+#include <sstream>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/string.hpp>
 #include <easylogging++.h>
-
-INITIALIZE_EASYLOGGINGPP
+#include "messages/message.h"
+#include "messages/game/send_map_message.h"
+#include "exceptions.h"
+#include "test_helpers.h"
 
 using namespace std;
+using namespace roa;
 
-void init_stuff() {
-    ios::sync_with_stdio(false);
+TEST_CASE("serialize/deserialize send_map_message happy flow") {
+    auto new_json_message = test_happy_flow<send_map_message, true, string>(json_send_map_message::id, "map_data"s);
+    REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->map_data == "map_data"s);
 
-    el::Configurations defaultConf;
-    defaultConf.setGlobally(el::ConfigurationType::Format, "%datetime %level: %msg");
-    el::Loggers::reconfigureAllLoggers(defaultConf);
-}
-
-int main(int argc, char const * const * argv) {
-    init_stuff();
-
-    int result = Catch::Session().run( argc, argv );
-
-    // global clean-up...
-
-    return ( result < 0xff ? result : 0xff );
+    auto new_binary_message = test_happy_flow<send_map_message, false, string>(binary_send_map_message::id, "map_data"s);
+    REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->map_data == "map_data"s);
 }

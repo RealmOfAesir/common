@@ -19,7 +19,6 @@
 #pragma once
 
 #include <string>
-#include <memory>
 
 #include "../message.h"
 
@@ -36,7 +35,7 @@ namespace roa {
         int8_t admin_status;
         int error_number;
         std::string error_str;
-        static constexpr uint32_t id = LOGIN_RESPONSE_MESSAGE_TYPE;
+        static constexpr uint32_t id = 1;
     };
 
     using json_login_response_message = login_response_message<true>;

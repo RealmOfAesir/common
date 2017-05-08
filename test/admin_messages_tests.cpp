@@ -21,16 +21,16 @@
 #include <sstream>
 #include <cereal/details/helpers.hpp>
 #include "messages/message.h"
-#include "admin_messages/quit_message.h"
+#include "admin_messages/admin_quit_message.h"
 #include "test_helpers.h"
 
 using namespace std;
 using namespace roa;
 
-TEST_CASE("serialize/deserialize quit_message happy flow") {
-    auto new_json_message = test_happy_flow<quit_message, true>(json_quit_message::id);
+TEST_CASE("serialize/deserialize admin_quit_message happy flow") {
+    auto new_json_message = test_happy_flow<admin_quit_message, true>(json_quit_message::id);
     REQUIRE(new_json_message != nullptr);
 
-    auto new_binary_message = test_happy_flow<quit_message, false>(binary_quit_message::id);
+    auto new_binary_message = test_happy_flow<admin_quit_message, false>(binary_quit_message::id);
     REQUIRE(new_binary_message != nullptr);
 }

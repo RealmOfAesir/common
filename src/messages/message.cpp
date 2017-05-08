@@ -27,11 +27,17 @@
 #include <cereal/types/string.hpp>
 #include <sstream>
 #include <easylogging++.h>
-#include <admin_messages/quit_message.h>
+#include <admin_messages/admin_quit_message.h>
 #include <messages/user_access_control/register_message.h>
 #include <messages/user_access_control/register_response_message.h>
 #include <messages/chat/chat_receive_message.h>
 #include <messages/chat/chat_send_message.h>
+#include <messages/user_access_control/logout_message.h>
+#include <messages/user_access_control/create_character_message.h>
+#include <messages/user_access_control/play_character_message.h>
+#include <messages/user_access_control/create_character_response_message.h>
+#include <messages/user_access_control/play_character_response_message.h>
+#include <messages/game/send_map_message.h>
 
 using namespace std;
 using namespace roa;
@@ -49,77 +55,123 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         throw serialization_exception("empty buffer " + to_string(buffer.length()));
     }
 
-    uint32_t type;
+    uint32_t message_id;
     message_sender sender;
     stringstream ss;
     ss << buffer;
     ss.flush();
     typename conditional<UseJson, cereal::JSONInputArchive, cereal::BinaryInputArchive>::type archive(ss);
-    archive(type, sender);
+    archive(cereal::make_nvp("id", message_id), cereal::make_nvp("sender", sender));
 
-    if(UseJson) {
-        LOG(INFO) << "original json message: " << buffer;
-    }
+    LOG(INFO) << "[message] type " << message_id << " with length " << buffer.size();
 
-    LOG(INFO) << "[message] type " << type << " with length " << buffer.size();
+    // scopes in cases are required for the cereal archive to go out of scope properly
+    switch(message_id) {
 
-    switch(type) {
+        // ---- uac messages ----
+
         case login_message<UseJson>::id:
-            {
-                std::string username;
-                std::string password;
-                archive(username, password);
-                return make_tuple(type, make_unique<login_message<UseJsonAsReturnType>>(sender, username, password));
-            }
+        {
+            std::string username;
+            std::string password;
+            archive(cereal::make_nvp("username", username), cereal::make_nvp("password", password));
+            return make_tuple(message_id, make_unique<login_message<UseJsonAsReturnType>>(sender, username, password));
+        }
         case login_response_message<UseJson>::id:
-            {
-                int8_t admin_status;
-                int error;
-                std::string error_str;
-                archive(admin_status, error, error_str);
-                return make_tuple(type, make_unique<login_response_message<UseJsonAsReturnType>>(sender, admin_status, error, error_str));
-            }
+        {
+            int8_t admin_status;
+            int error_number;
+            std::string error_str;
+            archive(cereal::make_nvp("admin_status", admin_status), cereal::make_nvp("error_number", error_number), cereal::make_nvp("error_str", error_str));
+            return make_tuple(message_id, make_unique<login_response_message<UseJsonAsReturnType>>(sender, admin_status, error_number, error_str));
+        }
         case register_message<UseJson>::id:
-            {
-                std::string username;
-                std::string password;
-                std::string email;
-                archive(username, password, email);
-                return make_tuple(type, make_unique<register_message<UseJsonAsReturnType>>(sender, username, password, email));
-            }
+        {
+            std::string username;
+            std::string password;
+            std::string email;
+            archive(cereal::make_nvp("username", username), cereal::make_nvp("password", password), cereal::make_nvp("email", email));
+            return make_tuple(message_id, make_unique<register_message<UseJsonAsReturnType>>(sender, username, password, email));
+        }
         case register_response_message<UseJson>::id:
-            {
-                int8_t admin_status;
-                int error;
-                std::string error_str;
-                archive(admin_status, error, error_str);
-                return make_tuple(type, make_unique<register_response_message<UseJsonAsReturnType>>(sender, admin_status, error, error_str));
-            }
+        {
+            int8_t admin_status;
+            int error_number;
+            std::string error_str;
+            archive(cereal::make_nvp("admin_status", admin_status), cereal::make_nvp("error_number", error_number), cereal::make_nvp("error_str", error_str));
+            return make_tuple(message_id, make_unique<register_response_message<UseJsonAsReturnType>>(sender, admin_status, error_number, error_str));
+        }
+        case logout_message<UseJson>::id:
+        {
+            return make_tuple(message_id, make_unique<logout_message<UseJsonAsReturnType>>(sender));
+        }
+        case create_character_message<UseJson>::id:
+        {
+            string playername;
+            archive(cereal::make_nvp("playername", playername));
+            return make_tuple(message_id, make_unique<create_character_message<UseJsonAsReturnType>>(sender, playername));
+        }
+        case create_character_response_message<UseJson>::id:
+        {
+            int error_number;
+            std::string error_str;
+            archive(cereal::make_nvp("error_number", error_number), cereal::make_nvp("error_str", error_str));
+            return make_tuple(message_id, make_unique<create_character_response_message<UseJsonAsReturnType>>(sender, error_number, error_str));
+        }
+        case play_character_message<UseJson>::id:
+        {
+            string playername;
+            archive(cereal::make_nvp("playername", playername));
+            return make_tuple(message_id, make_unique<play_character_message<UseJsonAsReturnType>>(sender, playername));
+        }
+        case play_character_response_message<UseJson>::id:
+        {
+            int error_number;
+            std::string error_str;
+            archive(cereal::make_nvp("error_number", error_number), cereal::make_nvp("error_str", error_str));
+            return make_tuple(message_id, make_unique<play_character_response_message<UseJsonAsReturnType>>(sender, error_number, error_str));
+        }
+
+        // ---- chat messages ----
+
         case chat_send_message<UseJson>::id:
-            {
-                string from_username;
-                string target;
-                string message;
-                archive(from_username, target, message);
-                return make_tuple(type, make_unique<chat_send_message<UseJsonAsReturnType>>(sender, from_username, target, message));
-            }
+        {
+            string from_username;
+            string target;
+            string message;
+            archive(cereal::make_nvp("from_username", from_username), cereal::make_nvp("target", target), cereal::make_nvp("message", message));
+            return make_tuple(message_id, make_unique<chat_send_message<UseJsonAsReturnType>>(sender, from_username, target, message));
+        }
         case chat_receive_message<UseJson>::id:
-            {
-                string from_username;
-                string target;
-                string message;
-                archive(from_username, target, message);
-                return make_tuple(type, make_unique<chat_receive_message<UseJsonAsReturnType>>(sender, from_username, target, message));
-            }
+        {
+            string from_username;
+            string target;
+            string msg;
+            archive(cereal::make_nvp("from_username", from_username), cereal::make_nvp("target", target), cereal::make_nvp("message", msg));
+            return make_tuple(message_id, make_unique<chat_receive_message<UseJsonAsReturnType>>(sender, from_username, target, msg));
+        }
+
+        // ---- game messages ----
+
+        case send_map_message<UseJson>::id:
+        {
+            std::string map_data;
+            archive( cereal::make_nvp("map_data", map_data));
+            return make_tuple(message_id, make_unique<send_map_message<UseJsonAsReturnType>>(sender, map_data));
+        }
 
         // ---- admin messages ----
 
-        case quit_message<UseJson>::id:
-            return make_tuple(type, make_unique<quit_message<UseJsonAsReturnType>>(sender));
+        case admin_quit_message<UseJson>::id:
+        {
+            return make_tuple(message_id, make_unique<admin_quit_message<UseJsonAsReturnType>>(sender));
+        }
         default:
-            LOG(WARNING) << "[message] deserialize encountered unknown message type: " << type;
+        {
+            LOG(WARNING) << "[message] deserialize encountered unknown message type: " << message_id;
 
-            throw serialization_exception("unknown message type " + to_string(type));
+            throw serialization_exception("unknown message type " + to_string(message_id));
+        }
     }
 }
 

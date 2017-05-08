@@ -19,33 +19,33 @@
 #include <sstream>
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
-#include "quit_message.h"
+#include "admin_quit_message.h"
 
 using namespace std;
 using namespace roa;
 
 template <bool UseJson>
-quit_message<UseJson>::quit_message(message_sender sender) noexcept
+admin_quit_message<UseJson>::admin_quit_message(message_sender sender) noexcept
         : message<UseJson>(sender) {
 
 }
 
 template <bool UseJson>
-quit_message<UseJson>::~quit_message() {
+admin_quit_message<UseJson>::~admin_quit_message() {
 
 }
 
 template <bool UseJson>
-string const quit_message<UseJson>::serialize() const {
+string const admin_quit_message<UseJson>::serialize() const {
     stringstream ss;
     {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
-        archive(cereal::make_nvp("id", quit_message<UseJson>::id), cereal::make_nvp("sender", this->sender));
+        archive(cereal::make_nvp("id", admin_quit_message<UseJson>::id), cereal::make_nvp("sender", this->sender));
     }
     return ss.str();
 }
 
-template<bool UseJson> uint32_t constexpr quit_message<UseJson>::id;
-template class quit_message<false>;
-template class quit_message<true>;
+template<bool UseJson> uint32_t constexpr admin_quit_message<UseJson>::id;
+template class admin_quit_message<false>;
+template class admin_quit_message<true>;

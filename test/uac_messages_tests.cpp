@@ -24,11 +24,14 @@
 #include <easylogging++.h>
 #include <messages/user_access_control/register_message.h>
 #include <messages/user_access_control/register_response_message.h>
+#include <messages/user_access_control/logout_message.h>
+#include <messages/user_access_control/create_character_message.h>
+#include <messages/user_access_control/play_character_message.h>
+#include <messages/user_access_control/create_character_response_message.h>
+#include <messages/user_access_control/play_character_response_message.h>
 #include "messages/message.h"
 #include "messages/user_access_control/login_message.h"
 #include "messages/user_access_control/login_response_message.h"
-#include "messages/chat/chat_send_message.h"
-#include "messages/chat/chat_receive_message.h"
 #include "exceptions.h"
 #include "test_helpers.h"
 
@@ -56,7 +59,7 @@ TEST_CASE("serialize/deserialize login_message errors") {
     {
         stringstream ss;
         cereal::BinaryOutputArchive archive(ss);
-        archive((uint32_t) LOGIN_MESSAGE_TYPE, string("garbage"));
+        archive((uint32_t) json_login_message::id, string("garbage"));
         ss.flush();
         REQUIRE_THROWS_AS(message<false>::template deserialize<false>(ss.str()), cereal::Exception &);
     }
@@ -64,7 +67,7 @@ TEST_CASE("serialize/deserialize login_message errors") {
         stringstream ss;
         cereal::BinaryOutputArchive archive(ss);
         message_sender sender(true, 1, 2, 3);
-        archive((uint32_t) LOGIN_MESSAGE_TYPE, sender, string("garbage"));
+        archive((uint32_t) json_login_message::id, sender, string("garbage"));
         ss.flush();
         REQUIRE_THROWS_AS(message<false>::template deserialize<false>(ss.str()), cereal::Exception &);
     }
@@ -84,7 +87,7 @@ TEST_CASE("serialize/deserialize login_response_message happy flow") {
     REQUIRE(new_binary_message->error_str == "test");
 }
 
-TEST_CASE("serialize/deserialize register_message json happy flow") {
+TEST_CASE("serialize/deserialize register_message happy flow") {
     auto new_json_message = test_happy_flow<register_message, true, string, string, string>(json_register_message::id, string("user"), string("pass"), string("email"));
     REQUIRE(new_json_message != nullptr);
     REQUIRE(new_json_message->username == "user");
@@ -98,7 +101,7 @@ TEST_CASE("serialize/deserialize register_message json happy flow") {
     REQUIRE(new_binary_message->email == "email");
 }
 
-TEST_CASE("serialize/deserialize register_response_message json happy flow") {
+TEST_CASE("serialize/deserialize register_response_message happy flow") {
     auto new_json_message = test_happy_flow<register_response_message, true, int, int, string>(json_register_response_message::id, 2, 1, string("test"));
     REQUIRE(new_json_message != nullptr);
     REQUIRE(new_json_message->admin_status == 2);
@@ -112,30 +115,54 @@ TEST_CASE("serialize/deserialize register_response_message json happy flow") {
     REQUIRE(new_binary_message->error_str == "test");
 }
 
-TEST_CASE("serialize/deserialize chat_send_message json happy flow") {
-    auto new_json_message = test_happy_flow<chat_send_message, true, string, string, string>(json_chat_send_message::id, "user"s, "target"s, "msg"s);
+TEST_CASE("serialize/deserialize logout_message happy flow") {
+    auto new_json_message = test_happy_flow<logout_message, true>(json_logout_message::id);
     REQUIRE(new_json_message != nullptr);
-    REQUIRE(new_json_message->from_username == "user"s);
-    REQUIRE(new_json_message->target == "target"s);
-    REQUIRE(new_json_message->message == "msg"s);
 
-    auto new_binary_message = test_happy_flow<chat_send_message, false, string, string, string>(binary_chat_send_message::id, "user"s, "target"s, "msg"s);
+    auto new_binary_message = test_happy_flow<logout_message, false>(binary_logout_message::id);
     REQUIRE(new_binary_message != nullptr);
-    REQUIRE(new_binary_message->from_username == "user"s);
-    REQUIRE(new_binary_message->target == "target"s);
-    REQUIRE(new_binary_message->message == "msg"s);
 }
 
-TEST_CASE("serialize/deserialize chat_receive_message json happy flow") {
-    auto new_json_message = test_happy_flow<chat_receive_message, true, string, string, string>(json_chat_receive_message::id, "user"s, "target"s, "msg"s);
+TEST_CASE("serialize/deserialize create_character_message happy flow") {
+    auto new_json_message = test_happy_flow<create_character_message, true, string>(json_create_character_message::id, "player"s);
     REQUIRE(new_json_message != nullptr);
-    REQUIRE(new_json_message->from_username == "user"s);
-    REQUIRE(new_json_message->target == "target"s);
-    REQUIRE(new_json_message->message == "msg"s);
+    REQUIRE(new_json_message->playername == "player"s);
 
-    auto new_binary_message = test_happy_flow<chat_receive_message, false, string, string, string>(binary_chat_receive_message::id, "user"s, "target"s, "msg"s);
+    auto new_binary_message = test_happy_flow<create_character_message, false, string>(binary_create_character_message::id, "player"s);
     REQUIRE(new_binary_message != nullptr);
-    REQUIRE(new_binary_message->from_username == "user"s);
-    REQUIRE(new_binary_message->target == "target"s);
-    REQUIRE(new_binary_message->message == "msg"s);
+    REQUIRE(new_binary_message->playername == "player"s);
+}
+
+TEST_CASE("serialize/deserialize create_character_response_message happy flow") {
+    auto new_json_message = test_happy_flow<create_character_response_message, true, int, string>(json_create_character_response_message::id, 1, string("test"));
+    REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->error_number == 1);
+    REQUIRE(new_json_message->error_str == "test");
+
+    auto new_binary_message = test_happy_flow<create_character_response_message, false, int, string>(binary_create_character_response_message::id, 1, string("test"));
+    REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->error_number == 1);
+    REQUIRE(new_binary_message->error_str == "test");
+}
+
+TEST_CASE("serialize/deserialize play_character_message happy flow") {
+    auto new_json_message = test_happy_flow<play_character_message, true, string>(json_play_character_message::id, "player"s);
+    REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->playername == "player"s);
+
+    auto new_binary_message = test_happy_flow<play_character_message, false, string>(binary_play_character_message::id, "player"s);
+    REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->playername == "player"s);
+}
+
+TEST_CASE("serialize/deserialize play_character_response_message happy flow") {
+    auto new_json_message = test_happy_flow<play_character_response_message, true, int, string>(json_play_character_response_message::id, 1, string("test"));
+    REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->error_number == 1);
+    REQUIRE(new_json_message->error_str == "test");
+
+    auto new_binary_message = test_happy_flow<play_character_response_message, false, int, string>(binary_play_character_response_message::id, 1, string("test"));
+    REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->error_number == 1);
+    REQUIRE(new_binary_message->error_str == "test");
 }
