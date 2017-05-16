@@ -6,6 +6,8 @@ The following is a set of guidelines for contributing to Realm of Aesir.
 
 Realm of Aesir works with a Copyright Assignment Agreement. If you're making a code contribution for the first time, you will be asked to digitally sign and e-mail an agreement to sign over all your copyright claims of the code to the guardian of Realm of Aesir. Currently that's Michael de Lang but in the future this will most likely be a legal entity. This is necessary for Realm of Aesir to prevent copyright claims and relicense the code for third parties. If you do not sign the agreement, your code contribution will be declined.
 
+You can find the agreement for individuals [here](Realm of Aesir-Individual.pdf) and the agreement for entities [here](Realm of Aesir-Entity.pdf). Please fill it in and e-mail it to realm.of.aesir@gmail.com.
+
 ### Design Decisions
 
 Most of this project is designed by Michael de Lang, so far any big change please contact him.
