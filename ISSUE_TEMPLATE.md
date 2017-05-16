@@ -27,7 +27,6 @@ Do you want to ask a question? Are you looking for support? Send a PM to Oipo on
 
 ### Versions
 
-You can get this information from copy and pasting the output of `atom --version` and `apm --version` from the command line. Also, please include the OS and what version of the OS you're running.
 
 ### Additional Information
 
