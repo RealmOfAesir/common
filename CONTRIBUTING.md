@@ -10,7 +10,7 @@ You can find the agreement for individuals [here](Realm%20of%20Aesir-Individual.
 
 ### Design Decisions
 
-Most of this project is designed by Michael de Lang, so far any big change please contact him.
+Most of this project is designed by Michael de Lang, so for any big change please contact him.
 
 ## How can I contribute?
 
