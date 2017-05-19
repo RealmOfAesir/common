@@ -25,6 +25,7 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/types/string.hpp>
+#include <cereal/types/vector.hpp>
 #include <sstream>
 #include <easylogging++.h>
 #include <admin_messages/admin_quit_message.h>
@@ -38,6 +39,8 @@
 #include <messages/user_access_control/create_character_response_message.h>
 #include <messages/user_access_control/play_character_response_message.h>
 #include <messages/game/send_map_message.h>
+#include <messages/user_access_control/get_characters_message.h>
+#include <messages/user_access_control/get_characters_response_message.h>
 
 using namespace std;
 using namespace roa;
@@ -149,6 +152,18 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
             string msg;
             archive(cereal::make_nvp("from_username", from_username), cereal::make_nvp("target", target), cereal::make_nvp("message", msg));
             return make_tuple(message_id, make_unique<chat_receive_message<UseJsonAsReturnType>>(sender, from_username, target, msg));
+        }
+        case get_characters_message<UseJson>::id:
+        {
+            return make_tuple(message_id, make_unique<get_characters_message<UseJsonAsReturnType>>(sender));
+        }
+        case get_characters_response_message<UseJson>::id:
+        {
+            vector<player_response> players;
+            int world_id;
+            string world_name;
+            archive(cereal::make_nvp("players", players), cereal::make_nvp("world_id", world_id), cereal::make_nvp("world_name", world_name));
+            return make_tuple(message_id, make_unique<get_characters_response_message<UseJsonAsReturnType>>(sender, players, world_id, world_name));
         }
 
         // ---- game messages ----
