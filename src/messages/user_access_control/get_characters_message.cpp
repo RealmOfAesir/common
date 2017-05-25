@@ -27,8 +27,8 @@ using namespace std;
 using namespace roa;
 
 template <bool UseJson>
-get_characters_message<UseJson>::get_characters_message(message_sender sender) noexcept
-        : message<UseJson>(sender) {}
+get_characters_message<UseJson>::get_characters_message(message_sender sender, std::string username) noexcept
+        : message<UseJson>(sender), username(username) {}
 
 template <bool UseJson>
 get_characters_message<UseJson>::~get_characters_message() noexcept {
@@ -42,7 +42,8 @@ string const get_characters_message<UseJson>::serialize() const {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
         archive(cereal::make_nvp("id", get_characters_message<UseJson>::id),
-                cereal::make_nvp("sender", this->sender));
+                cereal::make_nvp("sender", this->sender),
+                cereal::make_nvp("username", this->username));
     }
 
     return ss.str();

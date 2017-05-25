@@ -136,6 +136,20 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
             archive(cereal::make_nvp("error_number", error_number), cereal::make_nvp("error_str", error_str));
             return make_tuple(message_id, make_unique<play_character_response_message<UseJsonAsReturnType>>(sender, error_number, error_str));
         }
+        case get_characters_message<UseJson>::id:
+        {
+            string username;
+            archive(cereal::make_nvp("username", username));
+            return make_tuple(message_id, make_unique<get_characters_message<UseJsonAsReturnType>>(sender, username));
+        }
+        case get_characters_response_message<UseJson>::id:
+        {
+            vector<player_response> players;
+            int world_id;
+            string world_name;
+            archive(cereal::make_nvp("players", players), cereal::make_nvp("world_id", world_id), cereal::make_nvp("world_name", world_name));
+            return make_tuple(message_id, make_unique<get_characters_response_message<UseJsonAsReturnType>>(sender, players, world_id, world_name));
+        }
 
         // ---- chat messages ----
 
@@ -154,18 +168,6 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
             string msg;
             archive(cereal::make_nvp("from_username", from_username), cereal::make_nvp("target", target), cereal::make_nvp("message", msg));
             return make_tuple(message_id, make_unique<chat_receive_message<UseJsonAsReturnType>>(sender, from_username, target, msg));
-        }
-        case get_characters_message<UseJson>::id:
-        {
-            return make_tuple(message_id, make_unique<get_characters_message<UseJsonAsReturnType>>(sender));
-        }
-        case get_characters_response_message<UseJson>::id:
-        {
-            vector<player_response> players;
-            int world_id;
-            string world_name;
-            archive(cereal::make_nvp("players", players), cereal::make_nvp("world_id", world_id), cereal::make_nvp("world_name", world_name));
-            return make_tuple(message_id, make_unique<get_characters_response_message<UseJsonAsReturnType>>(sender, players, world_id, world_name));
         }
 
         // ---- game messages ----

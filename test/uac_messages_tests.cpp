@@ -174,11 +174,13 @@ TEST_CASE("serialize/deserialize play_character_response_message happy flow") {
 }
 
 TEST_CASE("serialize/deserialize get_characters_message happy flow") {
-    auto new_json_message = test_happy_flow<get_characters_message, true>(json_get_characters_message::id);
+    auto new_json_message = test_happy_flow<get_characters_message, true>(json_get_characters_message::id, "username");
     REQUIRE(new_json_message != nullptr);
+    REQUIRE(new_json_message->username == "username");
 
-    auto new_binary_message = test_happy_flow<get_characters_message, false>(binary_get_characters_message::id);
+    auto new_binary_message = test_happy_flow<get_characters_message, false>(binary_get_characters_message::id, "username");
     REQUIRE(new_binary_message != nullptr);
+    REQUIRE(new_binary_message->username == "username");
 }
 
 TEST_CASE("serialize/deserialize get_characters_response_message happy flow") {

@@ -26,12 +26,13 @@ namespace roa {
     template <bool UseJson>
     class get_characters_message : public message<UseJson> {
     public:
-        get_characters_message(message_sender sender) noexcept;
+        get_characters_message(message_sender sender, std::string username) noexcept;
 
         ~get_characters_message() noexcept override;
 
         std::string const serialize() const override;
 
+        std::string username;
         static constexpr uint32_t id = 12;
     };
 
