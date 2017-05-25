@@ -41,15 +41,17 @@ using namespace std;
 using namespace roa;
 
 TEST_CASE("serialize/deserialize login_message happy flow") {
-    auto new_json_message = test_happy_flow<login_message, true, string, string>(json_login_message::id, "user"s, "pass"s);
+    auto new_json_message = test_happy_flow<login_message, true, string, string, string>(json_login_message::id, "user"s, "pass"s, "ip"s);
     REQUIRE(new_json_message != nullptr);
     REQUIRE(new_json_message->username == "user");
     REQUIRE(new_json_message->password == "pass");
+    REQUIRE(new_json_message->ip == "ip");
 
-    auto new_binary_message = test_happy_flow<login_message, false, string, string>(binary_login_message::id, "user"s, "pass"s);
+    auto new_binary_message = test_happy_flow<login_message, false, string, string, string>(binary_login_message::id, "user"s, "pass"s, "ip"s);
     REQUIRE(new_binary_message != nullptr);
     REQUIRE(new_binary_message->username == "user");
     REQUIRE(new_binary_message->password == "pass");
+    REQUIRE(new_binary_message->ip == "ip");
 }
 
 TEST_CASE("deserialize garbage") {
@@ -90,17 +92,19 @@ TEST_CASE("serialize/deserialize login_response_message happy flow") {
 }
 
 TEST_CASE("serialize/deserialize register_message happy flow") {
-    auto new_json_message = test_happy_flow<register_message, true, string, string, string>(json_register_message::id, "user"s, "pass"s, "email"s);
+    auto new_json_message = test_happy_flow<register_message, true, string, string, string, string>(json_register_message::id, "user"s, "pass"s, "email"s, "ip"s);
     REQUIRE(new_json_message != nullptr);
     REQUIRE(new_json_message->username == "user");
     REQUIRE(new_json_message->password == "pass");
     REQUIRE(new_json_message->email == "email");
+    REQUIRE(new_json_message->ip == "ip");
 
-    auto new_binary_message = test_happy_flow<register_message, false, string, string, string>(binary_register_message::id, "user"s, "pass"s, "email"s);
+    auto new_binary_message = test_happy_flow<register_message, false, string, string, string, string>(binary_register_message::id, "user"s, "pass"s, "email"s, "ip"s);
     REQUIRE(new_binary_message != nullptr);
     REQUIRE(new_binary_message->username == "user");
     REQUIRE(new_binary_message->password == "pass");
     REQUIRE(new_binary_message->email == "email");
+    REQUIRE(new_binary_message->ip == "ip");
 }
 
 TEST_CASE("serialize/deserialize register_response_message happy flow") {

@@ -77,8 +77,9 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         {
             std::string username;
             std::string password;
-            archive(cereal::make_nvp("username", username), cereal::make_nvp("password", password));
-            return make_tuple(message_id, make_unique<login_message<UseJsonAsReturnType>>(sender, username, password));
+            std::string ip;
+            archive(cereal::make_nvp("username", username), cereal::make_nvp("password", password), cereal::make_nvp("ip", ip));
+            return make_tuple(message_id, make_unique<login_message<UseJsonAsReturnType>>(sender, username, password, ip));
         }
         case login_response_message<UseJson>::id:
         {
@@ -93,8 +94,9 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
             std::string username;
             std::string password;
             std::string email;
-            archive(cereal::make_nvp("username", username), cereal::make_nvp("password", password), cereal::make_nvp("email", email));
-            return make_tuple(message_id, make_unique<register_message<UseJsonAsReturnType>>(sender, username, password, email));
+            std::string ip;
+            archive(cereal::make_nvp("username", username), cereal::make_nvp("password", password), cereal::make_nvp("email", email), cereal::make_nvp("ip", ip));
+            return make_tuple(message_id, make_unique<register_message<UseJsonAsReturnType>>(sender, username, password, email, ip));
         }
         case register_response_message<UseJson>::id:
         {

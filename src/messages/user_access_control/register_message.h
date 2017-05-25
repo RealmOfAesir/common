@@ -26,7 +26,7 @@ namespace roa {
     template <bool UseJson>
     class register_message : public message<UseJson> {
     public:
-        register_message(message_sender sender, std::string username, std::string password, std::string email) noexcept;
+        register_message(message_sender sender, std::string username, std::string password, std::string email, std::string ip) noexcept;
 
         ~register_message() noexcept override;
 
@@ -35,6 +35,7 @@ namespace roa {
         std::string username;
         std::string password;
         std::string email;
+        std::string ip;
         static constexpr uint32_t id = 2;
     };
 

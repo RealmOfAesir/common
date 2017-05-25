@@ -26,7 +26,7 @@ namespace roa {
     template <bool UseJson>
     class login_message : public message<UseJson> {
     public:
-        login_message(message_sender sender, std::string username, std::string password) noexcept;
+        login_message(message_sender sender, std::string username, std::string password, std::string ip) noexcept;
 
         ~login_message() noexcept override;
 
@@ -34,6 +34,7 @@ namespace roa {
 
         std::string username;
         std::string password;
+        std::string ip;
         static constexpr uint32_t id = 0;
     };
 

@@ -27,8 +27,8 @@ using namespace std;
 using namespace roa;
 
 template <bool UseJson>
-register_message<UseJson>::register_message(message_sender sender, string username, string password, string email) noexcept
-        : message<UseJson>(sender), username(username), password(password), email(email) {}
+register_message<UseJson>::register_message(message_sender sender, string username, string password, string email, std::string ip) noexcept
+        : message<UseJson>(sender), username(username), password(password), email(email), ip(ip) {}
 
 template <bool UseJson>
 register_message<UseJson>::~register_message() noexcept {
@@ -45,7 +45,8 @@ string const register_message<UseJson>::serialize() const {
                 cereal::make_nvp("sender", this->sender),
                 cereal::make_nvp("username", this->username),
                 cereal::make_nvp("password", this->password),
-                cereal::make_nvp("email", this->email));
+                cereal::make_nvp("email", this->email),
+                cereal::make_nvp("ip", this->ip));
     }
 
     return ss.str();
