@@ -24,7 +24,7 @@ namespace roa {
     class message_sender {
     public:
         message_sender();
-        message_sender(bool is_for_client, uint32_t client_id, uint32_t server_origin_id, uint32_t server_destination_id);
+        message_sender(bool is_for_client, uint64_t client_id, uint32_t server_origin_id, uint32_t server_destination_id);
         message_sender(message_sender&&) = default;
         constexpr message_sender(message_sender const &) = default;
 
@@ -34,7 +34,7 @@ namespace roa {
         // if the message containing this sender is intended for a client
         // usually this means that the message is sent to a gateway and passed on the a client
         bool is_for_client;
-        uint32_t client_id;
+        uint64_t client_id;
         uint32_t server_origin_id;
         uint32_t server_destination_id;
 

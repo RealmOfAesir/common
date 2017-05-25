@@ -25,7 +25,7 @@ using namespace std;
 
 message_sender::message_sender() : is_for_client(false), client_id(0), server_origin_id(0), server_destination_id(0) { }
 
-message_sender::message_sender(bool is_for_client, uint32_t client_id, uint32_t server_origin_id, uint32_t server_destination_id) :
+message_sender::message_sender(bool is_for_client, uint64_t client_id, uint32_t server_origin_id, uint32_t server_destination_id) :
         is_for_client(is_for_client), client_id(client_id), server_origin_id(server_origin_id), server_destination_id(server_destination_id) { }
 
 template<class Archive>
