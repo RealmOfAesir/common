@@ -32,7 +32,7 @@ namespace roa {
 
         std::string const serialize() const override;
 
-        std::string playername;
+        std::string player_name;
         static constexpr uint32_t id = 7;
     };
 

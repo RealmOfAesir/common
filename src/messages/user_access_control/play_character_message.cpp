@@ -28,7 +28,7 @@ using namespace roa;
 
 template <bool UseJson>
 play_character_message<UseJson>::play_character_message(message_sender sender, string playername) noexcept
-        : message<UseJson>(sender), playername(playername) {}
+        : message<UseJson>(sender), player_name(playername) {}
 
 template <bool UseJson>
 play_character_message<UseJson>::~play_character_message() noexcept {
@@ -43,7 +43,7 @@ string const play_character_message<UseJson>::serialize() const {
 
         archive(cereal::make_nvp("id", play_character_message<UseJson>::id),
                 cereal::make_nvp("sender", this->sender),
-                cereal::make_nvp("playername", this->playername));
+                cereal::make_nvp("player_name", this->player_name));
     }
 
     return ss.str();

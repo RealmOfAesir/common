@@ -35,7 +35,7 @@ namespace roa {
         std::string from_username;
         std::string target;
         std::string message;
-        static constexpr uint32_t id = 5    ;
+        static constexpr uint32_t id = 5;
     };
 
     using json_chat_receive_message = chat_receive_message<true>;

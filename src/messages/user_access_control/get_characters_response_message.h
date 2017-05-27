@@ -28,16 +28,16 @@ namespace roa {
     template <bool UseJson>
     class get_characters_response_message : public message<UseJson> {
     public:
-        get_characters_response_message(message_sender sender, std::vector<player_response> players, int world_id, std::string world_name) noexcept;
+        get_characters_response_message(message_sender sender, std::vector<player_response> players, std::string world_name) noexcept;
 
         ~get_characters_response_message() noexcept override;
 
         std::string const serialize() const override;
 
         std::vector<player_response> players;
-        int world_id;
+        //world_id is already present in message_sender
         std::string world_name;
-        static constexpr uint32_t id = 13;
+        static constexpr uint32_t id = 10;
     };
 
     using json_get_characters_response_message = get_characters_response_message<true>;

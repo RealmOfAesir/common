@@ -20,15 +20,15 @@
 
 #include <string>
 
-#include "../message.h"
+#include "message.h"
 
 namespace roa {
     template <bool UseJson>
-    class create_character_response_message : public message<UseJson> {
+    class error_response_message : public message<UseJson> {
     public:
-        create_character_response_message(message_sender sender, int error_number, std::string error_str) noexcept;
+        error_response_message(message_sender sender, int error_number, std::string error_str) noexcept;
 
-        ~create_character_response_message() noexcept override;
+        ~error_response_message() noexcept override;
 
         std::string const serialize() const override;
 
@@ -37,6 +37,6 @@ namespace roa {
         static constexpr uint32_t id = 8;
     };
 
-    using json_create_character_response_message = create_character_response_message<true>;
-    using binary_create_character_response_message = create_character_response_message<false>;
+    using json_error_response_message = error_response_message<true>;
+    using binary_error_response_message = error_response_message<false>;
 }

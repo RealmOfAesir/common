@@ -21,6 +21,7 @@
 #include "exceptions.h"
 #include "user_access_control/login_response_message.h"
 #include "misc.h"
+#include "error_response_message.h"
 
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
@@ -36,8 +37,6 @@
 #include <messages/user_access_control/logout_message.h>
 #include <messages/user_access_control/create_character_message.h>
 #include <messages/user_access_control/play_character_message.h>
-#include <messages/user_access_control/create_character_response_message.h>
-#include <messages/user_access_control/play_character_response_message.h>
 #include <messages/game/send_map_message.h>
 #include <messages/user_access_control/get_characters_message.h>
 #include <messages/user_access_control/get_characters_response_message.h>
@@ -71,6 +70,14 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
     // scopes in cases are required for the cereal archive to go out of scope properly
     switch(message_id) {
 
+        case error_response_message<UseJson>::id:
+        {
+            int error_number;
+            std::string error_str;
+            archive(cereal::make_nvp("error_number", error_number), cereal::make_nvp("error_str", error_str));
+            return make_tuple(message_id, make_unique<error_response_message<UseJsonAsReturnType>>(sender, error_number, error_str));
+        }
+
         // ---- uac messages ----
 
         case login_message<UseJson>::id:
@@ -84,10 +91,8 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         case login_response_message<UseJson>::id:
         {
             int8_t admin_status;
-            int error_number;
-            std::string error_str;
-            archive(cereal::make_nvp("admin_status", admin_status), cereal::make_nvp("error_number", error_number), cereal::make_nvp("error_str", error_str));
-            return make_tuple(message_id, make_unique<login_response_message<UseJsonAsReturnType>>(sender, admin_status, error_number, error_str));
+            archive(cereal::make_nvp("admin_status", admin_status));
+            return make_tuple(message_id, make_unique<login_response_message<UseJsonAsReturnType>>(sender, admin_status));
         }
         case register_message<UseJson>::id:
         {
@@ -101,10 +106,8 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         case register_response_message<UseJson>::id:
         {
             int8_t admin_status;
-            int error_number;
-            std::string error_str;
-            archive(cereal::make_nvp("admin_status", admin_status), cereal::make_nvp("error_number", error_number), cereal::make_nvp("error_str", error_str));
-            return make_tuple(message_id, make_unique<register_response_message<UseJsonAsReturnType>>(sender, admin_status, error_number, error_str));
+            archive(cereal::make_nvp("admin_status", admin_status));
+            return make_tuple(message_id, make_unique<register_response_message<UseJsonAsReturnType>>(sender, admin_status));
         }
         case logout_message<UseJson>::id:
         {
@@ -113,28 +116,14 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         case create_character_message<UseJson>::id:
         {
             string playername;
-            archive(cereal::make_nvp("playername", playername));
+            archive(cereal::make_nvp("player_name", playername));
             return make_tuple(message_id, make_unique<create_character_message<UseJsonAsReturnType>>(sender, playername));
-        }
-        case create_character_response_message<UseJson>::id:
-        {
-            int error_number;
-            std::string error_str;
-            archive(cereal::make_nvp("error_number", error_number), cereal::make_nvp("error_str", error_str));
-            return make_tuple(message_id, make_unique<create_character_response_message<UseJsonAsReturnType>>(sender, error_number, error_str));
         }
         case play_character_message<UseJson>::id:
         {
             string playername;
-            archive(cereal::make_nvp("playername", playername));
+            archive(cereal::make_nvp("player_name", playername));
             return make_tuple(message_id, make_unique<play_character_message<UseJsonAsReturnType>>(sender, playername));
-        }
-        case play_character_response_message<UseJson>::id:
-        {
-            int error_number;
-            std::string error_str;
-            archive(cereal::make_nvp("error_number", error_number), cereal::make_nvp("error_str", error_str));
-            return make_tuple(message_id, make_unique<play_character_response_message<UseJsonAsReturnType>>(sender, error_number, error_str));
         }
         case get_characters_message<UseJson>::id:
         {
@@ -145,10 +134,9 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         case get_characters_response_message<UseJson>::id:
         {
             vector<player_response> players;
-            int world_id;
             string world_name;
-            archive(cereal::make_nvp("players", players), cereal::make_nvp("world_id", world_id), cereal::make_nvp("world_name", world_name));
-            return make_tuple(message_id, make_unique<get_characters_response_message<UseJsonAsReturnType>>(sender, players, world_id, world_name));
+            archive(cereal::make_nvp("players", players), cereal::make_nvp("world_name", world_name));
+            return make_tuple(message_id, make_unique<get_characters_response_message<UseJsonAsReturnType>>(sender, players, world_name));
         }
 
         // ---- chat messages ----

@@ -29,8 +29,8 @@ using namespace roa;
 
 
 template <bool UseJson>
-get_characters_response_message<UseJson>::get_characters_response_message(message_sender sender, std::vector<player_response> players, int world_id, std::string world_name) noexcept
-        : message<UseJson>(sender), players(players), world_id(world_id), world_name(world_name) {}
+get_characters_response_message<UseJson>::get_characters_response_message(message_sender sender, std::vector<player_response> players, std::string world_name) noexcept
+        : message<UseJson>(sender), players(players), world_name(world_name) {}
 
 template <bool UseJson>
 get_characters_response_message<UseJson>::~get_characters_response_message() noexcept {
@@ -46,7 +46,6 @@ string const get_characters_response_message<UseJson>::serialize() const {
         archive(cereal::make_nvp("id", get_characters_response_message<UseJson>::id),
                 cereal::make_nvp("sender", this->sender),
                 cereal::make_nvp("players", this->players),
-                cereal::make_nvp("world_id", this->world_id),
                 cereal::make_nvp("world_name", this->world_name));
     }
 

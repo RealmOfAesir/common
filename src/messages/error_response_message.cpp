@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "create_character_response_message.h"
+#include "error_response_message.h"
 
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
@@ -27,21 +27,21 @@ using namespace std;
 using namespace roa;
 
 template <bool UseJson>
-create_character_response_message<UseJson>::create_character_response_message(message_sender sender, int error_number, std::string error_str) noexcept
+error_response_message<UseJson>::error_response_message(message_sender sender, int error_number, std::string error_str) noexcept
         : message<UseJson>(sender), error_number(error_number), error_str(error_str) {}
 
 template <bool UseJson>
-create_character_response_message<UseJson>::~create_character_response_message() noexcept {
+error_response_message<UseJson>::~error_response_message() noexcept {
 
 }
 
 template <bool UseJson>
-string const create_character_response_message<UseJson>::serialize() const {
+string const error_response_message<UseJson>::serialize() const {
     stringstream ss;
     {
         typename conditional<UseJson, cereal::JSONOutputArchive, cereal::BinaryOutputArchive>::type archive(ss);
 
-        archive(cereal::make_nvp("id", create_character_response_message<UseJson>::id),
+        archive(cereal::make_nvp("id", error_response_message<UseJson>::id),
                 cereal::make_nvp("sender", this->sender),
                 cereal::make_nvp("error_number", this->error_number),
                 cereal::make_nvp("error_str", this->error_str));
@@ -50,6 +50,6 @@ string const create_character_response_message<UseJson>::serialize() const {
     return ss.str();
 }
 
-template<bool UseJson> uint32_t constexpr create_character_response_message<UseJson>::id;
-template class create_character_response_message<false>;
-template class create_character_response_message<true>;
+template<bool UseJson> uint32_t constexpr error_response_message<UseJson>::id;
+template class error_response_message<false>;
+template class error_response_message<true>;

@@ -27,10 +27,9 @@
 #include <messages/user_access_control/logout_message.h>
 #include <messages/user_access_control/create_character_message.h>
 #include <messages/user_access_control/play_character_message.h>
-#include <messages/user_access_control/create_character_response_message.h>
-#include <messages/user_access_control/play_character_response_message.h>
 #include <messages/user_access_control/get_characters_message.h>
 #include <messages/user_access_control/get_characters_response_message.h>
+#include <messages/error_response_message.h>
 #include "messages/message.h"
 #include "messages/user_access_control/login_message.h"
 #include "messages/user_access_control/login_response_message.h"
@@ -78,17 +77,13 @@ TEST_CASE("serialize/deserialize login_message errors") {
 }
 
 TEST_CASE("serialize/deserialize login_response_message happy flow") {
-    auto new_json_message = test_happy_flow<login_response_message, true, int, int, string>(json_login_response_message::id, 2, 1, "test"s);
+    auto new_json_message = test_happy_flow<login_response_message, true, int>(json_login_response_message::id, 2);
     REQUIRE(new_json_message != nullptr);
     REQUIRE(new_json_message->admin_status == 2);
-    REQUIRE(new_json_message->error_number == 1);
-    REQUIRE(new_json_message->error_str == "test");
 
-    auto new_binary_message = test_happy_flow<login_response_message, false, int, int, string>(binary_login_response_message::id, 2, 1, "test"s);
+    auto new_binary_message = test_happy_flow<login_response_message, false, int>(binary_login_response_message::id, 2);
     REQUIRE(new_binary_message != nullptr);
     REQUIRE(new_binary_message->admin_status == 2);
-    REQUIRE(new_binary_message->error_number == 1);
-    REQUIRE(new_binary_message->error_str == "test");
 }
 
 TEST_CASE("serialize/deserialize register_message happy flow") {
@@ -108,17 +103,13 @@ TEST_CASE("serialize/deserialize register_message happy flow") {
 }
 
 TEST_CASE("serialize/deserialize register_response_message happy flow") {
-    auto new_json_message = test_happy_flow<register_response_message, true, int, int, string>(json_register_response_message::id, 2, 1, "test"s);
+    auto new_json_message = test_happy_flow<register_response_message, true, int>(json_register_response_message::id, 2);
     REQUIRE(new_json_message != nullptr);
     REQUIRE(new_json_message->admin_status == 2);
-    REQUIRE(new_json_message->error_number == 1);
-    REQUIRE(new_json_message->error_str == "test");
 
-    auto new_binary_message = test_happy_flow<register_response_message, false, int, int, string>(binary_register_response_message::id, 2, 1, "test"s);
+    auto new_binary_message = test_happy_flow<register_response_message, false, int>(binary_register_response_message::id, 2);
     REQUIRE(new_binary_message != nullptr);
     REQUIRE(new_binary_message->admin_status == 2);
-    REQUIRE(new_binary_message->error_number == 1);
-    REQUIRE(new_binary_message->error_str == "test");
 }
 
 TEST_CASE("serialize/deserialize logout_message happy flow") {
@@ -132,20 +123,20 @@ TEST_CASE("serialize/deserialize logout_message happy flow") {
 TEST_CASE("serialize/deserialize create_character_message happy flow") {
     auto new_json_message = test_happy_flow<create_character_message, true, string>(json_create_character_message::id, "player"s);
     REQUIRE(new_json_message != nullptr);
-    REQUIRE(new_json_message->playername == "player"s);
+    REQUIRE(new_json_message->player_name == "player"s);
 
     auto new_binary_message = test_happy_flow<create_character_message, false, string>(binary_create_character_message::id, "player"s);
     REQUIRE(new_binary_message != nullptr);
-    REQUIRE(new_binary_message->playername == "player"s);
+    REQUIRE(new_binary_message->player_name == "player"s);
 }
 
 TEST_CASE("serialize/deserialize create_character_response_message happy flow") {
-    auto new_json_message = test_happy_flow<create_character_response_message, true, int, string>(json_create_character_response_message::id, 1, "test"s);
+    auto new_json_message = test_happy_flow<error_response_message, true, int, string>(json_error_response_message::id, 1, "test"s);
     REQUIRE(new_json_message != nullptr);
     REQUIRE(new_json_message->error_number == 1);
     REQUIRE(new_json_message->error_str == "test");
 
-    auto new_binary_message = test_happy_flow<create_character_response_message, false, int, string>(binary_create_character_response_message::id, 1, "test"s);
+    auto new_binary_message = test_happy_flow<error_response_message, false, int, string>(binary_error_response_message::id, 1, "test"s);
     REQUIRE(new_binary_message != nullptr);
     REQUIRE(new_binary_message->error_number == 1);
     REQUIRE(new_binary_message->error_str == "test");
@@ -154,23 +145,11 @@ TEST_CASE("serialize/deserialize create_character_response_message happy flow") 
 TEST_CASE("serialize/deserialize play_character_message happy flow") {
     auto new_json_message = test_happy_flow<play_character_message, true, string>(json_play_character_message::id, "player"s);
     REQUIRE(new_json_message != nullptr);
-    REQUIRE(new_json_message->playername == "player"s);
+    REQUIRE(new_json_message->player_name == "player"s);
 
     auto new_binary_message = test_happy_flow<play_character_message, false, string>(binary_play_character_message::id, "player"s);
     REQUIRE(new_binary_message != nullptr);
-    REQUIRE(new_binary_message->playername == "player"s);
-}
-
-TEST_CASE("serialize/deserialize play_character_response_message happy flow") {
-    auto new_json_message = test_happy_flow<play_character_response_message, true, int, string>(json_play_character_response_message::id, 1, "test"s);
-    REQUIRE(new_json_message != nullptr);
-    REQUIRE(new_json_message->error_number == 1);
-    REQUIRE(new_json_message->error_str == "test");
-
-    auto new_binary_message = test_happy_flow<play_character_response_message, false, int, string>(binary_play_character_response_message::id, 1, "test"s);
-    REQUIRE(new_binary_message != nullptr);
-    REQUIRE(new_binary_message->error_number == 1);
-    REQUIRE(new_binary_message->error_str == "test");
+    REQUIRE(new_binary_message->player_name == "player"s);
 }
 
 TEST_CASE("serialize/deserialize get_characters_message happy flow") {
@@ -184,17 +163,19 @@ TEST_CASE("serialize/deserialize get_characters_message happy flow") {
 }
 
 TEST_CASE("serialize/deserialize get_characters_response_message happy flow") {
-    auto new_json_message = test_happy_flow<get_characters_response_message, true, vector<player_response>, int, string>(json_get_characters_response_message::id, {{3, "player_name"s, "map_name"s}}, 1, "test"s);
+    auto new_json_message = test_happy_flow<get_characters_response_message, true, vector<player_response>, string>(json_get_characters_response_message::id, {{3, "player_name"s, "map_name"s}}, "test"s);
     REQUIRE(new_json_message != nullptr);
     REQUIRE(new_json_message->players.size() == 1);
     REQUIRE(new_json_message->players[0].player_id == 3);
     REQUIRE(new_json_message->players[0].map_name == "map_name"s);
     REQUIRE(new_json_message->players[0].player_name == "player_name"s);
+    REQUIRE(new_json_message->world_name == "test"s);
 
-    auto new_binary_message = test_happy_flow<get_characters_response_message, false, vector<player_response>, int, string>(binary_get_characters_response_message::id, {{3, "player_name"s, "map_name"s}}, 1, "test"s);
+    auto new_binary_message = test_happy_flow<get_characters_response_message, false, vector<player_response>, string>(binary_get_characters_response_message::id, {{3, "player_name"s, "map_name"s}}, "test"s);
     REQUIRE(new_binary_message != nullptr);
-    REQUIRE(new_json_message->players.size() == 1);
-    REQUIRE(new_json_message->players[0].player_id == 3);
-    REQUIRE(new_json_message->players[0].map_name == "map_name"s);
-    REQUIRE(new_json_message->players[0].player_name == "player_name"s);
+    REQUIRE(new_binary_message->players.size() == 1);
+    REQUIRE(new_binary_message->players[0].player_id == 3);
+    REQUIRE(new_binary_message->players[0].map_name == "map_name"s);
+    REQUIRE(new_binary_message->players[0].player_name == "player_name"s);
+    REQUIRE(new_binary_message->world_name == "test"s);
 }
