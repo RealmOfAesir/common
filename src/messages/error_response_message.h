@@ -22,6 +22,9 @@
 
 #include "message.h"
 
+#define BANNED_ERROR_CODE -2
+#define GENERIC_ERROR_CODE -1
+
 namespace roa {
     template <bool UseJson>
     class error_response_message : public message<UseJson> {

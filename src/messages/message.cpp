@@ -115,21 +115,23 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         }
         case create_character_message<UseJson>::id:
         {
-            string playername;
-            archive(cereal::make_nvp("player_name", playername));
-            return make_tuple(message_id, make_unique<create_character_message<UseJsonAsReturnType>>(sender, playername));
+            uint64_t user_id;
+            string player_name;
+            archive(cereal::make_nvp("user_id", user_id), cereal::make_nvp("player_name", player_name));
+            return make_tuple(message_id, make_unique<create_character_message<UseJsonAsReturnType>>(sender, user_id, player_name));
         }
         case play_character_message<UseJson>::id:
         {
-            string playername;
-            archive(cereal::make_nvp("player_name", playername));
-            return make_tuple(message_id, make_unique<play_character_message<UseJsonAsReturnType>>(sender, playername));
+            uint64_t user_id;
+            string player_name;
+            archive(cereal::make_nvp("user_id", user_id), cereal::make_nvp("player_name", player_name));
+            return make_tuple(message_id, make_unique<play_character_message<UseJsonAsReturnType>>(sender, user_id, player_name));
         }
         case get_characters_message<UseJson>::id:
         {
-            string username;
-            archive(cereal::make_nvp("username", username));
-            return make_tuple(message_id, make_unique<get_characters_message<UseJsonAsReturnType>>(sender, username));
+            uint64_t user_id;
+            archive(cereal::make_nvp("user_id", user_id));
+            return make_tuple(message_id, make_unique<get_characters_message<UseJsonAsReturnType>>(sender, user_id));
         }
         case get_characters_response_message<UseJson>::id:
         {
