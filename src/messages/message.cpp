@@ -91,8 +91,9 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         case login_response_message<UseJson>::id:
         {
             int8_t admin_status;
-            archive(cereal::make_nvp("admin_status", admin_status));
-            return make_tuple(message_id, make_unique<login_response_message<UseJsonAsReturnType>>(sender, admin_status));
+            uint64_t user_id;
+            archive(cereal::make_nvp("admin_status", admin_status), cereal::make_nvp("user_id", user_id));
+            return make_tuple(message_id, make_unique<login_response_message<UseJsonAsReturnType>>(sender, admin_status, user_id));
         }
         case register_message<UseJson>::id:
         {
@@ -106,8 +107,9 @@ tuple<uint32_t, unique_ptr<message<UseJsonAsReturnType> const>> message<UseJson>
         case register_response_message<UseJson>::id:
         {
             int8_t admin_status;
-            archive(cereal::make_nvp("admin_status", admin_status));
-            return make_tuple(message_id, make_unique<register_response_message<UseJsonAsReturnType>>(sender, admin_status));
+            uint64_t user_id;
+            archive(cereal::make_nvp("admin_status", admin_status), cereal::make_nvp("user_id", user_id));
+            return make_tuple(message_id, make_unique<register_response_message<UseJsonAsReturnType>>(sender, admin_status, user_id));
         }
         case logout_message<UseJson>::id:
         {
