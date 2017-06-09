@@ -77,12 +77,12 @@ TEST_CASE("serialize/deserialize login_message errors") {
 }
 
 TEST_CASE("serialize/deserialize login_response_message happy flow") {
-    auto new_json_message = test_happy_flow<login_response_message, true, int, uint32_t>(json_login_response_message::id, 2, 3);
+    auto new_json_message = test_happy_flow<login_response_message, true, int, uint64_t>(json_login_response_message::id, 2, 3);
     REQUIRE(new_json_message != nullptr);
     REQUIRE(new_json_message->admin_status == 2);
     REQUIRE(new_json_message->user_id == 3);
 
-    auto new_binary_message = test_happy_flow<login_response_message, false, int, uint32_t>(binary_login_response_message::id, 2, 3);
+    auto new_binary_message = test_happy_flow<login_response_message, false, int, uint64_t>(binary_login_response_message::id, 2, 3);
     REQUIRE(new_binary_message != nullptr);
     REQUIRE(new_binary_message->admin_status == 2);
     REQUIRE(new_binary_message->user_id == 3);
@@ -105,12 +105,12 @@ TEST_CASE("serialize/deserialize register_message happy flow") {
 }
 
 TEST_CASE("serialize/deserialize register_response_message happy flow") {
-    auto new_json_message = test_happy_flow<register_response_message, true, int, uint32_t>(json_register_response_message::id, 2, 3);
+    auto new_json_message = test_happy_flow<register_response_message, true, int, uint64_t>(json_register_response_message::id, 2, 3);
     REQUIRE(new_json_message != nullptr);
     REQUIRE(new_json_message->admin_status == 2);
     REQUIRE(new_json_message->user_id == 3);
 
-    auto new_binary_message = test_happy_flow<register_response_message, false, int, uint32_t>(binary_register_response_message::id, 2, 3);
+    auto new_binary_message = test_happy_flow<register_response_message, false, int, uint64_t>(binary_register_response_message::id, 2, 3);
     REQUIRE(new_binary_message != nullptr);
     REQUIRE(new_binary_message->admin_status == 2);
     REQUIRE(new_binary_message->user_id == 3);
