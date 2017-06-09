@@ -22,9 +22,13 @@
 
 namespace roa {
     struct player_response {
-        int player_id;
+        uint64_t player_id;
         std::string player_name;
         std::string map_name;
+
+        player_response() = default;
+        player_response(uint64_t player_id, std::string player_name, std::string map_name)
+                : player_id(player_id), player_name(player_name), map_name(map_name) {}
 
         template<class Archive>
         void serialize(Archive &archive);
