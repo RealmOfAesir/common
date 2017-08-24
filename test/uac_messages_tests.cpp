@@ -171,12 +171,15 @@ TEST_CASE("serialize/deserialize get_characters_message happy flow") {
 }
 
 TEST_CASE("serialize/deserialize get_characters_response_message happy flow") {
-    auto new_json_message = test_happy_flow<get_characters_response_message, true, vector<player_response>, string>(json_get_characters_response_message::id, {{3, "player_name"s, "map_name"s}}, "test"s);
+    auto new_json_message = test_happy_flow<get_characters_response_message, true, vector<player_response>, string>(json_get_characters_response_message::id, {{3, "player_name"s, "map_name"s}, {4, "player2_name"s, "map2_name"s}}, "test"s);
     REQUIRE(new_json_message != nullptr);
-    REQUIRE(new_json_message->players.size() == 1);
+    REQUIRE(new_json_message->players.size() == 2);
     REQUIRE(new_json_message->players[0].player_id == 3);
     REQUIRE(new_json_message->players[0].map_name == "map_name"s);
     REQUIRE(new_json_message->players[0].player_name == "player_name"s);
+    REQUIRE(new_json_message->players[1].player_id == 4);
+    REQUIRE(new_json_message->players[1].map_name == "map2_name"s);
+    REQUIRE(new_json_message->players[1].player_name == "player2_name"s);
     REQUIRE(new_json_message->world_name == "test"s);
 
     auto new_binary_message = test_happy_flow<get_characters_response_message, false, vector<player_response>, string>(binary_get_characters_response_message::id, {{3, "player_name"s, "map_name"s}}, "test"s);
